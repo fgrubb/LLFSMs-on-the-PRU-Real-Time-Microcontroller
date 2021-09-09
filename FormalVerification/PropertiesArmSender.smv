@@ -1,0 +1,13 @@
+LTLSPEC
+--- If we reach the state OUTPUT_TAIL, is because we reached the end of file
+        NAME ifReachOUTPUT_TAIL :=
+        G (arm_to_pru0.At_OUTPUT_TAIL
+        -> file_generator.At_TEST_EOF & w_b.EOF )
+
+LTLSPEC
+--- If we succeed in opening the file and we reach end of file, we eventually reach the state OUTPUT_TAIL.
+        NAME ifEOF :=
+        G ( arm_to_pru0.At_FILES_OPEN -> (w_b.EOF  -> F arm_to_pru0.At_OUTPUT_TAIL))
+LTLSPEC
+--- If we reach the state OUTPUT_TAIL, the number of characters to the PRU0 is one more than the size of the input file.
+        G (arm_to_pru0.At_OUTPUT_TAIL -> arm_to_pru0.total_output = file_generator.total_chars_generated + 1)

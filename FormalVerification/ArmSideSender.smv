@@ -1,0 +1,329 @@
+--
+--- (c) 2021 Miguel Carrillo Barajas & Vlad Estivill-Castro
+--
+MODULE g_c
+-- This module models global constants in arrangement of LLFSMs 
+-- (See: 
+-- Carrillo, M. Estivill-Castro, V. Rosenblueth, D. A. 'Verification and Simulation of Time-Domain Properties for Models of Behaviour'
+--  S. Hammoudi et al. (Eds.): MODELSWARD 2020, CCIS 1361, pp. 1–25, 2021
+--    https://doi.org/10.1007/978-3-030-67445-8_10)
+
+DEFINE SIZE := 4;
+DEFINE SIZEP1 := 5;
+DEFINE ASCII_VALUES := 255;
+DEFINE MAX_FILE_SIZE := 100;
+-- End g_c -------------------------------------------------------------
+
+MODULE Sensor (g_c)
+-- This module models sensor variables of an arrangement of LLFSMs 
+-- (See: 
+-- Carrillo, M. Estivill-Castro, V. Rosenblueth, D. A. 'Verification and Simulation of Time-Domain Properties for Models of Behaviour'
+--  S. Hammoudi et al. (Eds.): MODELSWARD 2020, CCIS 1361, pp. 1–25, 2021
+--    https://doi.org/10.1007/978-3-030-67445-8_10)
+-- Intuitively, for all sensor variable Si, Si has a non-deterministic value.
+-- Input: (NO INPUTS)
+
+-- Sensor variables:
+VAR
+	files_open:boolean;
+	NonDeterministicEOF:boolean;
+
+	charInFile:0..g_c.ASCII_VALUES;
+
+TRANS
+-- For all sensor variable Si, Si has a non-deterministic value:
+	TRUE; -- No constraint on transitions.
+
+-- End Sensor -------------------------------------------------------------
+
+MODULE Whiteboard (turn ,turnsOfEOF,turnsOfchar_read,g_c)
+-- Parameters:    (turn, turnsOfW1, turnsOfW2, ...), where each Wi is the name of a whiteboard variable.
+-- This module models Whiteboard variables of an arrangement of LLFSMs 
+-- (See: 
+-- Carrillo, M. Estivill-Castro, V. Rosenblueth, D. A. 'Verification and Simulation of Time-Domain Properties for Models of Behaviour'
+--  S. Hammoudi et al. (Eds.): MODELSWARD 2020, CCIS 1361, pp. 1–25, 2021
+--    https://doi.org/10.1007/978-3-030-67445-8_10)
+-- Intuitively, for all Whiteboard variable Wi:
+-- 	this module keeps the value of Wi when the current turn is not one of the turns where Wi can be modified.
+-- Input:
+-- 	turn: 	Current turn
+-- 	turnsOfWi: 	Set of turns where variable named Wi is modified (for each whiteboard variable named Wi).
+
+-- Whiteboard variables:
+VAR
+
+	EOF:boolean;
+	char_read:boolean;
+
+TRANS
+
+	(! (turn in turnsOfEOF)
+	-> next(EOF) = EOF)
+	&
+	(! (turn in turnsOfchar_read)
+	-> next(char_read) = char_read)
+
+-- End Whiteboard -------------------------------------------------------------
+
+MODULE file_generator(executing, NonDeterministicEOF, char_read, EOF,g_c) -- Parameters
+
+-- file_generatoris a NuSMV module modelling a LLFSM for IMP,
+-- a logic-labelled finite-state machine[2] for IMP language [3].
+-- mcb & vec
+
+-- Variable ProgramCounter (states) for file_generator:
+-- StateNames= ["dInitfile_generator", "SET_UP", "TEST_EOF", "GENERATE_CHAR"]
+VAR
+pcfile_generator : 0..3;
+
+VAR
+-- Local variables for  module file_generator:
+total_chars_generated : 0.. g_c.MAX_FILE_SIZE;
+
+-- Initial state constraints for fsm file_generator:
+-- Initial state of fsm file_generator (pc):
+INIT
+(pcfile_generator = 0)
+
+-- Define declarations of LLFSM file_generator:
+DEFINE -- Definitions for easy formula about reaching a state:
+	At_SET_UP := (pcfile_generator=1);
+	At_TEST_EOF := (pcfile_generator=2);
+	At_GENERATE_CHAR := (pcfile_generator=3);
+DEFINE
+condT00 :=
+	((  (pcfile_generator= 0)) & TRUE);
+condT01:=
+	(( (pcfile_generator= 1)) & TRUE);
+condT02:=
+	(( (pcfile_generator= 2)) & (! (EOF)));
+condT03:=
+	(( (pcfile_generator= 3)) & (char_read));
+condDefault0 :=
+	((!condT00) & (!condT01) & (!condT02) & (!condT03));
+
+-- Transition constraints of LLFSM  file_generator:
+-- Tran(file_generator) = [(0, 1, 1) (1, 1, 2)(2, (NOT EOF), 3)(3, char_read, 2)] 
+-- StateNames= ["dInitfile_generator", "SET_UP", "TEST_EOF", "GENERATE_CHAR"]
+TRANS
+ (!executing -> -- If this module is not executing, then keep the values of local variables
+		 -- NOTE: The w_b module and the Effector module preserve values of any variables in LHS of such classes
+		((next(pcfile_generator)=pcfile_generator)& (next(total_chars_generated)=total_chars_generated)) 	) -- NOT executing
+	& (executing -> -- If this module is executing, use the defined conditions to perform transitions orderly:
+	( (TRUE &  -- Ncond
+	condT00 &  -- Pcond
+		(next(pcfile_generator) = 1) & (next(char_read)=char_read) & (next(total_chars_generated)=0) & (next(EOF)=FALSE)
+		) -- Next
+	|
+	((!condT00) &   -- Ncond
+	condT01 & -- Pcond
+		(next(pcfile_generator) = 2)  & (next(total_chars_generated)=total_chars_generated) & (next(EOF)=(EOF | (NonDeterministicEOF | (g_c.MAX_FILE_SIZE<(total_chars_generated + 2))))) & (next(char_read)=FALSE)
+		)  -- Next
+	|
+	((!condT00) & (!condT01) &   -- Ncond
+	condT02 & -- Pcond
+		(next(pcfile_generator) = 3)  & (next(EOF)=EOF) & (next(char_read)=char_read) & (next(total_chars_generated)=(total_chars_generated + 1))
+		)  -- Next
+	|
+	((!condT00) & (!condT01) & (!condT02) &   -- Ncond
+	condT03 & -- Pcond
+		(next(pcfile_generator) = 2)  & (next(total_chars_generated)=total_chars_generated) & (next(EOF)=(EOF | (NonDeterministicEOF | (g_c.MAX_FILE_SIZE<(total_chars_generated + 2))))) & (next(char_read)=FALSE)
+		)  -- Next
+	|
+	(condDefault0 &  -- Ncond
+	TRUE &  -- Pcond
+	(next(pcfile_generator) = pcfile_generator)  & (next(total_chars_generated)=total_chars_generated) & (next(char_read)=char_read) & (next(EOF)=EOF)	)  -- Next
+	)  -- Consequent executing
+)  -- closing executing
+
+-- End file_generator -------------------------------------------------------------
+
+MODULE arm_to_pru0(executing, charInFile, files_open, char_read, EOF,g_c) -- Parameters
+
+-- arm_to_pru0is a NuSMV module modelling a LLFSM for IMP,
+-- a logic-labelled finite-state machine[2] for IMP language [3].
+-- mcb & vec
+
+-- Variable ProgramCounter (states) for arm_to_pru0:
+-- StateNames= ["dInitarm_to_pru0", "INITIAL", "FAIL_TO_OPEN", "FILES_OPEN", "READ_CHAR", "OUTPUT_TAIL", "COPY_CHAR", "INCREMENT", "OUTPUT_BLOCK"]
+VAR
+pcarm_to_pru0 : 0..8;
+
+VAR
+-- Local variables for  module arm_to_pru0:
+counter : 0.. g_c.SIZEP1;
+ch : 0.. 255;
+block : 0.. 255;
+total_output : 0.. g_c.MAX_FILE_SIZE;
+
+-- Initial state constraints for fsm arm_to_pru0:
+-- Initial state of fsm arm_to_pru0 (pc):
+INIT
+(pcarm_to_pru0 = 0)
+
+-- Define declarations of LLFSM arm_to_pru0:
+DEFINE -- Definitions for easy formula about reaching a state:
+	At_INITIAL := (pcarm_to_pru0=1);
+	At_FAIL_TO_OPEN := (pcarm_to_pru0=2);
+	At_FILES_OPEN := (pcarm_to_pru0=3);
+	At_READ_CHAR := (pcarm_to_pru0=4);
+	At_OUTPUT_TAIL := (pcarm_to_pru0=5);
+	At_COPY_CHAR := (pcarm_to_pru0=6);
+	At_INCREMENT := (pcarm_to_pru0=7);
+	At_OUTPUT_BLOCK := (pcarm_to_pru0=8);
+DEFINE
+condT10 :=
+	((  (pcarm_to_pru0= 0)) & TRUE);
+condT11:=
+	(( (pcarm_to_pru0= 1)) & (files_open));
+condT12:=
+	(( (pcarm_to_pru0= 1)) & TRUE);
+condT13:=
+	(( (pcarm_to_pru0= 3)) & TRUE);
+condT14:=
+	(( (pcarm_to_pru0= 4)) & (EOF));
+condT15:=
+	(( (pcarm_to_pru0= 4)) & TRUE);
+condT16:=
+	(( (pcarm_to_pru0= 6)) & TRUE);
+condT17:=
+	(( (pcarm_to_pru0= 7)) & ((g_c.SIZE < (counter)) | (g_c.SIZE = (counter))));
+condT18:=
+	(( (pcarm_to_pru0= 7)) & TRUE);
+condT19:=
+	(( (pcarm_to_pru0= 8)) & TRUE);
+condDefault1 :=
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) & (!condT14) & (!condT15) & (!condT16) & (!condT17) & (!condT18) & (!condT19));
+
+-- Transition constraints of LLFSM  arm_to_pru0:
+-- Tran(arm_to_pru0) = [(0, 1, 1) (1, files_open, 3)(1, 1, 2)(3, 1, 4)(4, EOF, 5)(4, 1, 6)(6, 1, 7)(7, (OR (LESS 4 counter) (EQUAL 4 counter)), 8)(7, 1, 4)(8, 1, 3)] 
+-- StateNames= ["dInitarm_to_pru0", "INITIAL", "FAIL_TO_OPEN", "FILES_OPEN", "READ_CHAR", "OUTPUT_TAIL", "COPY_CHAR", "INCREMENT", "OUTPUT_BLOCK"]
+TRANS
+ (!executing -> -- If this module is not executing, then keep the values of local variables
+		 -- NOTE: The w_b module and the Effector module preserve values of any variables in LHS of such classes
+		((next(pcarm_to_pru0)=pcarm_to_pru0)& (next(counter)=counter)& (next(ch)=ch)& (next(block)=block)& (next(total_output)=total_output)) 	) -- NOT executing
+	& (executing -> -- If this module is executing, use the defined conditions to perform transitions orderly:
+	( (TRUE &  -- Ncond
+	condT10 &  -- Pcond
+		(next(pcarm_to_pru0) = 1) & (next(counter)=counter) & (next(ch)=ch) & (next(block)=block) & (next(char_read)=char_read) & (next(total_output)=0)
+		) -- Next
+	|
+	((!condT10) &   -- Ncond
+	condT11 & -- Pcond
+		(next(pcarm_to_pru0) = 3)  & (next(ch)=ch) & (next(block)=block) & (next(total_output)=total_output) & (next(char_read)=char_read) & (next(counter)=0)
+		)  -- Next
+	|
+	((!condT10) & (!condT11) &   -- Ncond
+	condT12 & -- Pcond
+		(next(pcarm_to_pru0) = 2)  & (next(counter)=counter) & (next(ch)=ch) & (next(block)=block) & (next(total_output)=total_output) & (next(char_read)=char_read)
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) &   -- Ncond
+	condT13 & -- Pcond
+		(next(pcarm_to_pru0) = 4)  & (next(counter)=counter) & (next(block)=block) & (next(total_output)=total_output) & (next(char_read)=char_read) & (next(ch)=charInFile)
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) &   -- Ncond
+	condT14 & -- Pcond
+		(next(pcarm_to_pru0) = 5)  & (next(ch)=ch) & (next(char_read)=char_read) & (next(block)=0) & (next(counter)=(counter + 1)) & (next(total_output)=(total_output + (counter + 1)))
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) & (!condT14) &   -- Ncond
+	condT15 & -- Pcond
+		(next(pcarm_to_pru0) = 6)  & (next(counter)=counter) & (next(ch)=ch) & (next(total_output)=total_output) & (next(block)=ch) & (next(char_read)=TRUE)
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) & (!condT14) & (!condT15) &   -- Ncond
+	condT16 & -- Pcond
+		(next(pcarm_to_pru0) = 7)  & (next(ch)=ch) & (next(block)=block) & (next(total_output)=total_output) & (next(char_read)=char_read) & (next(counter)=(counter + 1))
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) & (!condT14) & (!condT15) & (!condT16) &   -- Ncond
+	condT17 & -- Pcond
+		(next(pcarm_to_pru0) = 8)  & (next(counter)=counter) & (next(ch)=ch) & (next(block)=block) & (next(char_read)=char_read) & (next(total_output)=(total_output + g_c.SIZE))
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) & (!condT14) & (!condT15) & (!condT16) & (!condT17) &   -- Ncond
+	condT18 & -- Pcond
+		(next(pcarm_to_pru0) = 4)  & (next(counter)=counter) & (next(block)=block) & (next(total_output)=total_output) & (next(char_read)=char_read) & (next(ch)=charInFile)
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) & (!condT14) & (!condT15) & (!condT16) & (!condT17) & (!condT18) &   -- Ncond
+	condT19 & -- Pcond
+		(next(pcarm_to_pru0) = 3)  & (next(ch)=ch) & (next(block)=block) & (next(total_output)=total_output) & (next(char_read)=char_read) & (next(counter)=0)
+		)  -- Next
+	|
+	(condDefault1 &  -- Ncond
+	TRUE &  -- Pcond
+	(next(pcarm_to_pru0) = pcarm_to_pru0)  & (next(counter)=counter) & (next(ch)=ch) & (next(block)=block) & (next(total_output)=total_output) & (next(char_read)=char_read)	)  -- Next
+	)  -- Consequent executing
+)  -- closing executing
+
+-- End arm_to_pru0 -------------------------------------------------------------
+
+MODULE RoundRobinScheduler()-- This module models a round robin scheduler of an arrangement of LLFSMs 
+-- (See: 
+-- Carrillo, M. Estivill-Castro, V. Rosenblueth, D. A. 'Verification and Simulation of Time-Domain Properties for Models of Behaviour'
+--  S. Hammoudi et al. (Eds.): MODELSWARD 2020, CCIS 1361, pp. 1–25, 2021
+--    https://doi.org/10.1007/978-3-030-67445-8_10)
+-- Input: (NO INPUTS)
+
+-- Output: turn
+
+--
+-- Variable to record the execution turn:
+VAR
+	turn : 0..1;
+
+DEFINE
+	executing0:= (turn=0);
+	executing1:= (turn=1);
+-- Initial states for RoundRobinScheduler module (turn and whiteboard variables):
+INIT
+	(turn = 0)
+
+-- Transitions for RoundRobinScheduler module:
+TRANS
+	((turn=0) & -- cond
+		next(turn=1) ) -- next
+	|
+	((turn=1) & -- cond
+		next(turn=0) ) -- next
+
+-- End RoundRobinScheduler -------------------------------------------------------------
+
+MODULE main
+-- Text of this NuSMV module was automatically generated by Java EMF model converter implemented  in:
+--       Netbeans project JavaLLFSMsTransformation
+-- The input model is in the configuration file but see arrangement name below
+-- The output is a modular NuSMV model is ArmSideSender.smv
+-- This is the main module of NuSMV file modelling an arrangement of LLFSMs:ArmSideSender
+-- Exported to a NuSMV file an arrangement of logic-labelled finite-state machines (LLFSMs)[2]
+-- for the IMP language [3].
+-- Control of the arrangement is exported to the Main module of the NuSMV file.
+-- Each fsm of the arrangement is exported to a NuSMV module.
+-- [2] Estivill-Castro V, Hexel R, Lusty C. High performance relaying of C++11 objects across processes and logic-labeled finite-state machines. International Conference on Simulation, Modeling, and Programming for Autonomous Robots, pp. 182-194. Springer, 2014
+-- [3] Winskel G. The formal semantics of programming languages: an introduction. MIT press, 1993.
+
+--
+-- Instance for global constants, we always have one
+-- Instance for scheduler, we always have one
+VAR
+g_c:g_c();
+sch:RoundRobinScheduler();
+--
+-- Instance for sensor variables: they are always read only
+Sensor:Sensor(g_c);
+w_b: Whiteboard(sch.turn
+	-- turnsOfEOF
+, {0}
+	-- turnsOfchar_read
+, {0,1},g_c);
+
+file_generator : file_generator(sch.executing0, Sensor.NonDeterministicEOF, w_b.char_read, w_b.EOF,g_c);
+
+arm_to_pru0 : arm_to_pru0(sch.executing1, Sensor.charInFile, Sensor.files_open, w_b.char_read, w_b.EOF,g_c);
+
+--
+-- End  -------------------------------------------------------------
+
