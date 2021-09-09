@@ -8,4 +8,4 @@ This project relies on the PRU Cape, one can use their own proto board with Beag
 Device tree source must be compiled to a binary, then copied to the uBoot/dtb folder, may be easiest to just back up the older file, and add the new one using same name.
 The general defines header file has IO pin definitions for LEDs, buttons and LCD connections, it mentions this reliance on the device tree file.
 
-Fisher Grubb & Prof Vladimir Estivill-Castro are the authors/developers.
+&copy; Fisher Grubb & Prof Vladimir Estivill-Castro: the authors/developers.
