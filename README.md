@@ -5,10 +5,15 @@ Extra important information not put in the paper will be put here as an addition
 
 ## Contents of this Repository
 State machines using the LLFSM structure (which are run on the ucFSM scheduler for "Bare Metal" applications on micro-controllers.
+
 State diagrams, some were in the paper, but others not to save space, they are here in full size.
+
 Model checking/formal verification proof (using NuSMV and nuXMV)
+
 Supporting configuration files, such as device tree source
+
 Pinout information due to some modifications of the PRU Cape.
+
 Instructions for how to use this all.
 
 ## Important Info For PRU IO Pins: LEDs, Buttons & LCD
