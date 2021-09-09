@@ -4,7 +4,7 @@ This repository holds the LLFSM state machines and other resources for the paper
 Extra important information not put in the paper will be put here as an addition.
 
 ## Contents of this Repository
-State machines using the LLFSM structure (which are run on the ucFSM scheduler for "Bare Metal" applications on micro-controllers.
+State machines using the LLFSM structure, which are run on the ucFSM scheduler for "Bare Metal" applications on micro-controllers.
 
 State diagrams, some were in the paper, but others not to save space, they are here in full size.
 
