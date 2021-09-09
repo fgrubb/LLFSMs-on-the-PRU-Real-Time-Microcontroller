@@ -1,0 +1,32 @@
+
+-- Begin mcb: ------------------------------------------------------------------------------------------------
+
+LTLSPEC
+-- At initial states, if the state is "end", i.e. armTOpru0.tail and pr1TOarm.reset, then, at some future state, forwarded=received.
+    NAME atAllStatesEndImpliesFforwEQrec :=                    -- For all path t=(t_0,...):
+    G   (                                                       --      for all future states t_i
+        (arm_to_pru0.At_OUTPUT_TAIL & pru1_to_arm.At_RESET)     --          if t_i |= "Tail & Reset"
+        ->                                                      --          then
+        F                                                       --          at some future state t_j:
+            G   (                                               --              for all future states t_k: t_k satisfies
+                arm_to_pru0.total_blocks_forwarded              --                  (blocks_forwarded
+                =                                               --                  equals
+                pru1_to_arm.total_blocks_received               --                  blocks_received)
+                )
+        )
+
+LTLSPEC
+-- At initial states, if the state is "end", i.e. armTOpru0.tail and pr1TOarm.reset, then, at some future state, forwarded=received.
+    NAME atAllStatesEndImpliesBoundedFforwEQrec := 
+    G   (                                                       --      for all future states t_i
+        (arm_to_pru0.At_OUTPUT_TAIL & pru1_to_arm.At_RESET)     --          if t_i |= "Tail & Reset"
+        ->                                                      --          then
+        F[0,12]                                                 --          at some future state t_j, in at most __ transitions:
+            G   (                                               --              for all future states t_k: t_k satisfies
+                arm_to_pru0.total_blocks_forwarded              --                  (blocks_forwarded
+                =                                               --                  equals
+                pru1_to_arm.total_blocks_received               --                  blocks_received)
+                )
+        )
+
+-- End mcb ---------------------------------------------------------------------------------------------------

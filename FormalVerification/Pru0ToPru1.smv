@@ -1,0 +1,552 @@
+--
+--- (c) 2021 Miguel Carrillo Barajas & Vlad Estivill-Castro
+--
+MODULE g_c
+-- This module models global constants in arrangement of LLFSMs 
+-- (See: 
+-- Carrillo, M. Estivill-Castro, V. Rosenblueth, D. A. 'Verification and Simulation of Time-Domain Properties for Models of Behaviour'
+--  S. Hammoudi et al. (Eds.): MODELSWARD 2020, CCIS 1361, pp. 1–25, 2021
+--    https://doi.org/10.1007/978-3-030-67445-8_10)
+
+DEFINE NEW_PAYLOAD := 0;
+DEFINE PRU_RPMSG_SUCCESS := 1;
+DEFINE IRQ_ARM_TO_PRU0 := 1;
+DEFINE MAX_FILE_SIZE_IN_BLOCKS := 10;
+DEFINE MAX_PAYLOAD := 5;
+DEFINE IRQ_XFR_PRU0plusPRU_IRQ_out_strobe := 2;
+-- End g_c -------------------------------------------------------------
+
+MODULE Sensor (g_c)
+-- This module models sensor variables of an arrangement of LLFSMs 
+-- (See: 
+-- Carrillo, M. Estivill-Castro, V. Rosenblueth, D. A. 'Verification and Simulation of Time-Domain Properties for Models of Behaviour'
+--  S. Hammoudi et al. (Eds.): MODELSWARD 2020, CCIS 1361, pp. 1–25, 2021
+--    https://doi.org/10.1007/978-3-030-67445-8_10)
+-- Intuitively, for all sensor variable Si, Si has a non-deterministic value.
+-- Input: (NO INPUTS)
+
+-- Sensor variables:
+VAR
+	NonDeterministicEOF:boolean;
+
+
+TRANS
+-- For all sensor variable Si, Si has a non-deterministic value:
+	TRUE; -- No constraint on transitions.
+
+-- End Sensor -------------------------------------------------------------
+
+MODULE Whiteboard (turn ,turnsOfpru_rpmsg_init_CALL,turnsOfSTATUS_CLR_INDEX,turnsOfpru_rpmsg_receive_CALL,turnsOfpru_rpmsg_channel,turnsOfpayload,turnsOfpru_rpmsg_received_STATUS,turnsOfR31,turnsOflocal_Buffer,turnsOfrpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK,turnsOfEOF,turnsOfENA_STATUS_bit_for_IRQ_ARM_TO_PRU0,turnsOfENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0,g_c)
+-- Parameters:    (turn, turnsOfW1, turnsOfW2, ...), where each Wi is the name of a whiteboard variable.
+-- This module models Whiteboard variables of an arrangement of LLFSMs 
+-- (See: 
+-- Carrillo, M. Estivill-Castro, V. Rosenblueth, D. A. 'Verification and Simulation of Time-Domain Properties for Models of Behaviour'
+--  S. Hammoudi et al. (Eds.): MODELSWARD 2020, CCIS 1361, pp. 1–25, 2021
+--    https://doi.org/10.1007/978-3-030-67445-8_10)
+-- Intuitively, for all Whiteboard variable Wi:
+-- 	this module keeps the value of Wi when the current turn is not one of the turns where Wi can be modified.
+-- Input:
+-- 	turn: 	Current turn
+-- 	turnsOfWi: 	Set of turns where variable named Wi is modified (for each whiteboard variable named Wi).
+
+-- Whiteboard variables:
+VAR
+	pru_rpmsg_init_CALL:0..1;
+	STATUS_CLR_INDEX:0..1;
+	pru_rpmsg_receive_CALL:0..1;
+	pru_rpmsg_channel:0..1;
+	payload:0..g_c.MAX_PAYLOAD;
+	pru_rpmsg_received_STATUS:0..1;
+	R31:0..2;
+	local_Buffer:0..g_c.MAX_PAYLOAD;
+
+	rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK:boolean;
+	EOF:boolean;
+	ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0:boolean;
+	ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0:boolean;
+
+TRANS
+	(! (turn in turnsOfpru_rpmsg_init_CALL)
+	-> next(pru_rpmsg_init_CALL) = pru_rpmsg_init_CALL)
+	&
+	(! (turn in turnsOfSTATUS_CLR_INDEX)
+	-> next(STATUS_CLR_INDEX) = STATUS_CLR_INDEX)
+	&
+	(! (turn in turnsOfpru_rpmsg_receive_CALL)
+	-> next(pru_rpmsg_receive_CALL) = pru_rpmsg_receive_CALL)
+	&
+	(! (turn in turnsOfpru_rpmsg_channel)
+	-> next(pru_rpmsg_channel) = pru_rpmsg_channel)
+	&
+	(! (turn in turnsOfpayload)
+	-> next(payload) = payload)
+	&
+	(! (turn in turnsOfpru_rpmsg_received_STATUS)
+	-> next(pru_rpmsg_received_STATUS) = pru_rpmsg_received_STATUS)
+	&
+	(! (turn in turnsOfR31)
+	-> next(R31) = R31)
+	&
+	(! (turn in turnsOflocal_Buffer)
+	-> next(local_Buffer) = local_Buffer)
+
+	&
+	(! (turn in turnsOfrpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK)
+	-> next(rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK) = rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK)
+	&
+	(! (turn in turnsOfEOF)
+	-> next(EOF) = EOF)
+	&
+	(! (turn in turnsOfENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)
+	-> next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0) = ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)
+	&
+	(! (turn in turnsOfENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)
+	-> next(ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0) = ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)
+
+-- End Whiteboard -------------------------------------------------------------
+
+MODULE LINUX_KERNEL(executing, pru_rpmsg_received_STATUS, pru_rpmsg_channel, pru_rpmsg_receive_CALL, pru_rpmsg_init_CALL, ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0,g_c) -- Parameters
+
+-- LINUX_KERNELis a NuSMV module modelling a LLFSM for IMP,
+-- a logic-labelled finite-state machine[2] for IMP language [3].
+-- mcb & vec
+
+-- Variable ProgramCounter (states) for LINUX_KERNEL:
+-- StateNames= ["dInitLINUX_KERNEL", "NULL_START", "ESTABLISH_CHANNEL", "RECEIVED_DATA_FROM_ARM", "DATA_COLLECTED_BY_PRU0"]
+VAR
+pcLINUX_KERNEL : 0..4;
+
+VAR
+-- Local variables for  module LINUX_KERNEL:
+
+-- Initial state constraints for fsm LINUX_KERNEL:
+-- Initial state of fsm LINUX_KERNEL (pc):
+INIT
+(pcLINUX_KERNEL = 0)
+
+-- Define declarations of LLFSM LINUX_KERNEL:
+DEFINE -- Definitions for easy formula about reaching a state:
+	At_NULL_START := (pcLINUX_KERNEL=1);
+	At_ESTABLISH_CHANNEL := (pcLINUX_KERNEL=2);
+	At_RECEIVED_DATA_FROM_ARM := (pcLINUX_KERNEL=3);
+	At_DATA_COLLECTED_BY_PRU0 := (pcLINUX_KERNEL=4);
+DEFINE
+condT00 :=
+	((  (pcLINUX_KERNEL= 0)) & TRUE);
+condT01:=
+	(( (pcLINUX_KERNEL= 1)) & ((pru_rpmsg_init_CALL) = 1));
+condT02:=
+	(( (pcLINUX_KERNEL= 3)) & ((pru_rpmsg_receive_CALL) = 1));
+condT03:=
+	(( (pcLINUX_KERNEL= 2)) & (ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0));
+condT04:=
+	(( (pcLINUX_KERNEL= 4)) & (ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0));
+condDefault0 :=
+	((!condT00) & (!condT01) & (!condT02) & (!condT03) & (!condT04));
+
+-- Transition constraints of LLFSM  LINUX_KERNEL:
+-- Tran(LINUX_KERNEL) = [(0, 1, 1) (1, (EQUAL pru_rpmsg_init_CALL 1), 2)(3, (EQUAL pru_rpmsg_receive_CALL 1), 4)(2, ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0, 3)(4, ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0, 3)] 
+-- StateNames= ["dInitLINUX_KERNEL", "NULL_START", "ESTABLISH_CHANNEL", "RECEIVED_DATA_FROM_ARM", "DATA_COLLECTED_BY_PRU0"]
+TRANS
+ (!executing -> -- If this module is not executing, then keep the values of local variables
+		 -- NOTE: The w_b module and the Effector module preserve values of any variables in LHS of such classes
+		((next(pcLINUX_KERNEL)=pcLINUX_KERNEL)) 	) -- NOT executing
+	& (executing -> -- If this module is executing, use the defined conditions to perform transitions orderly:
+	( (TRUE &  -- Ncond
+	condT00 &  -- Pcond
+		(next(pcLINUX_KERNEL) = 1) & (next(pru_rpmsg_channel)=(g_c.PRU_RPMSG_SUCCESS - 1)) & (next(pru_rpmsg_init_CALL)=0) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=FALSE) & (next(pru_rpmsg_received_STATUS)=0)
+		) -- Next
+	|
+	((!condT00) &   -- Ncond
+	condT01 & -- Pcond
+		(next(pcLINUX_KERNEL) = 2)  & (next(pru_rpmsg_received_STATUS)=pru_rpmsg_received_STATUS) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0) & (next(pru_rpmsg_channel)=g_c.PRU_RPMSG_SUCCESS)
+		)  -- Next
+	|
+	((!condT00) & (!condT01) &   -- Ncond
+	condT02 & -- Pcond
+		(next(pcLINUX_KERNEL) = 4)  & (next(pru_rpmsg_channel)=pru_rpmsg_channel) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(pru_rpmsg_received_STATUS)=g_c.PRU_RPMSG_SUCCESS) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=FALSE)
+		)  -- Next
+	|
+	((!condT00) & (!condT01) & (!condT02) &   -- Ncond
+	condT03 & -- Pcond
+		(next(pcLINUX_KERNEL) = 3)  & (next(pru_rpmsg_channel)=pru_rpmsg_channel) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0) & (next(pru_rpmsg_received_STATUS)=0)
+		)  -- Next
+	|
+	((!condT00) & (!condT01) & (!condT02) & (!condT03) &   -- Ncond
+	condT04 & -- Pcond
+		(next(pcLINUX_KERNEL) = 3)  & (next(pru_rpmsg_channel)=pru_rpmsg_channel) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0) & (next(pru_rpmsg_received_STATUS)=0)
+		)  -- Next
+	|
+	(condDefault0 &  -- Ncond
+	TRUE &  -- Pcond
+	(next(pcLINUX_KERNEL) = pcLINUX_KERNEL)  & (next(pru_rpmsg_received_STATUS)=pru_rpmsg_received_STATUS) & (next(pru_rpmsg_channel)=pru_rpmsg_channel) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)	)  -- Next
+	)  -- Consequent executing
+)  -- closing executing
+
+-- End LINUX_KERNEL -------------------------------------------------------------
+
+MODULE pru1_to_arm(executing, R31, local_Buffer, ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0,g_c) -- Parameters
+
+-- pru1_to_armis a NuSMV module modelling a LLFSM for IMP,
+-- a logic-labelled finite-state machine[2] for IMP language [3].
+-- mcb & vec
+
+-- Variable ProgramCounter (states) for pru1_to_arm:
+-- StateNames= ["dInitpru1_to_arm", "INITIAL_CLEAR_SIGNALS", "RECEIVED_GET_READY", "SYNCHRONISED", "RESET"]
+VAR
+pcpru1_to_arm : 0..4;
+
+VAR
+-- Local variables for  module pru1_to_arm:
+data : 0.. g_c.MAX_PAYLOAD;
+total_blocks_received : 0.. g_c.MAX_FILE_SIZE_IN_BLOCKS;
+
+-- Initial state constraints for fsm pru1_to_arm:
+-- Initial state of fsm pru1_to_arm (pc):
+INIT
+(pcpru1_to_arm = 0)
+
+-- Define declarations of LLFSM pru1_to_arm:
+DEFINE -- Definitions for easy formula about reaching a state:
+	At_INITIAL_CLEAR_SIGNALS := (pcpru1_to_arm=1);
+	At_RECEIVED_GET_READY := (pcpru1_to_arm=2);
+	At_SYNCHRONISED := (pcpru1_to_arm=3);
+	At_RESET := (pcpru1_to_arm=4);
+DEFINE
+condT10 :=
+	((  (pcpru1_to_arm= 0)) & TRUE);
+condT11:=
+	(( (pcpru1_to_arm= 1)) & ((R31) = g_c.IRQ_XFR_PRU0plusPRU_IRQ_out_strobe));
+condT12:=
+	(( (pcpru1_to_arm= 2)) & ((R31) = g_c.IRQ_XFR_PRU0plusPRU_IRQ_out_strobe));
+condT13:=
+	(( (pcpru1_to_arm= 4)) & ((R31) = g_c.IRQ_XFR_PRU0plusPRU_IRQ_out_strobe));
+condT14:=
+	(( (pcpru1_to_arm= 3)) & TRUE);
+condDefault1 :=
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) & (!condT14));
+
+-- Transition constraints of LLFSM  pru1_to_arm:
+-- Tran(pru1_to_arm) = [(0, 1, 1) (1, (EQUAL R31 2), 2)(2, (EQUAL R31 2), 3)(4, (EQUAL R31 2), 2)(3, 1, 4)] 
+-- StateNames= ["dInitpru1_to_arm", "INITIAL_CLEAR_SIGNALS", "RECEIVED_GET_READY", "SYNCHRONISED", "RESET"]
+TRANS
+ (!executing -> -- If this module is not executing, then keep the values of local variables
+		 -- NOTE: The w_b module and the Effector module preserve values of any variables in LHS of such classes
+		((next(pcpru1_to_arm)=pcpru1_to_arm)& (next(data)=data)& (next(total_blocks_received)=total_blocks_received)) 	) -- NOT executing
+	& (executing -> -- If this module is executing, use the defined conditions to perform transitions orderly:
+	( (TRUE &  -- Ncond
+	condT10 &  -- Pcond
+		(next(pcpru1_to_arm) = 1) & (next(data)=data) & (next(R31)=0) & (next(total_blocks_received)=0) & (next(ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)=FALSE)
+		) -- Next
+	|
+	((!condT10) &   -- Ncond
+	condT11 & -- Pcond
+		(next(pcpru1_to_arm) = 2)  & (next(data)=data) & (next(total_blocks_received)=total_blocks_received) & (next(R31)=0) & (next(ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)=TRUE)
+		)  -- Next
+	|
+	((!condT10) & (!condT11) &   -- Ncond
+	condT12 & -- Pcond
+		(next(pcpru1_to_arm) = 3)  & (next(R31)=R31) & (next(data)=local_Buffer) & (next(total_blocks_received)=(total_blocks_received + 1)) & (next(ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)=FALSE)
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) &   -- Ncond
+	condT13 & -- Pcond
+		(next(pcpru1_to_arm) = 2)  & (next(data)=data) & (next(total_blocks_received)=total_blocks_received) & (next(R31)=0) & (next(ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)=TRUE)
+		)  -- Next
+	|
+	((!condT10) & (!condT11) & (!condT12) & (!condT13) &   -- Ncond
+	condT14 & -- Pcond
+		(next(pcpru1_to_arm) = 4)  & (next(data)=data) & (next(total_blocks_received)=total_blocks_received) & (next(ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)=ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0) & (next(R31)=0)
+		)  -- Next
+	|
+	(condDefault1 &  -- Ncond
+	TRUE &  -- Pcond
+	(next(pcpru1_to_arm) = pcpru1_to_arm)  & (next(data)=data) & (next(total_blocks_received)=total_blocks_received) & (next(R31)=R31) & (next(ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)=ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0)	)  -- Next
+	)  -- Consequent executing
+)  -- closing executing
+
+-- End pru1_to_arm -------------------------------------------------------------
+
+MODULE arm_to_pru0(executing, NonDeterministicEOF, STATUS_CLR_INDEX, rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK, ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0, EOF,g_c) -- Parameters
+
+-- arm_to_pru0is a NuSMV module modelling a LLFSM for IMP,
+-- a logic-labelled finite-state machine[2] for IMP language [3].
+-- mcb & vec
+
+-- Variable ProgramCounter (states) for arm_to_pru0:
+-- StateNames= ["dInitarm_to_pru0", "OPEN_RPMSG_INITIAL", "TEST_EOF", "OUTPUT_BLOCK", "OUTPUT_TAIL"]
+VAR
+pcarm_to_pru0 : 0..4;
+
+VAR
+-- Local variables for  module arm_to_pru0:
+total_blocks_forwarded : 0.. g_c.MAX_FILE_SIZE_IN_BLOCKS;
+
+-- Initial state constraints for fsm arm_to_pru0:
+-- Initial state of fsm arm_to_pru0 (pc):
+INIT
+(pcarm_to_pru0 = 0)
+
+-- Define declarations of LLFSM arm_to_pru0:
+DEFINE -- Definitions for easy formula about reaching a state:
+	At_OPEN_RPMSG_INITIAL := (pcarm_to_pru0=1);
+	At_TEST_EOF := (pcarm_to_pru0=2);
+	At_OUTPUT_BLOCK := (pcarm_to_pru0=3);
+	At_OUTPUT_TAIL := (pcarm_to_pru0=4);
+DEFINE
+condT20 :=
+	((  (pcarm_to_pru0= 0)) & TRUE);
+condT21:=
+	(( (pcarm_to_pru0= 1)) & TRUE);
+condT22:=
+	(( (pcarm_to_pru0= 2)) & (! (EOF)));
+condT23:=
+	(( (pcarm_to_pru0= 2)) & TRUE);
+condT24:=
+	(( (pcarm_to_pru0= 3)) & ((STATUS_CLR_INDEX) = g_c.IRQ_ARM_TO_PRU0));
+condDefault2 :=
+	((!condT20) & (!condT21) & (!condT22) & (!condT23) & (!condT24));
+
+-- Transition constraints of LLFSM  arm_to_pru0:
+-- Tran(arm_to_pru0) = [(0, 1, 1) (1, 1, 2)(2, (NOT EOF), 3)(2, 1, 4)(3, (EQUAL STATUS_CLR_INDEX 1), 2)] 
+-- StateNames= ["dInitarm_to_pru0", "OPEN_RPMSG_INITIAL", "TEST_EOF", "OUTPUT_BLOCK", "OUTPUT_TAIL"]
+TRANS
+ (!executing -> -- If this module is not executing, then keep the values of local variables
+		 -- NOTE: The w_b module and the Effector module preserve values of any variables in LHS of such classes
+		((next(pcarm_to_pru0)=pcarm_to_pru0)& (next(total_blocks_forwarded)=total_blocks_forwarded)) 	) -- NOT executing
+	& (executing -> -- If this module is executing, use the defined conditions to perform transitions orderly:
+	( (TRUE &  -- Ncond
+	condT20 &  -- Pcond
+		(next(pcarm_to_pru0) = 1) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX) & (next(EOF)=EOF) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0) & (next(total_blocks_forwarded)=0) & (next(rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK)=TRUE)
+		) -- Next
+	|
+	((!condT20) &   -- Ncond
+	condT21 & -- Pcond
+		(next(pcarm_to_pru0) = 2)  & (next(total_blocks_forwarded)=total_blocks_forwarded) & (next(rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK)=rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0) & (next(EOF)=(EOF | (NonDeterministicEOF | (g_c.MAX_FILE_SIZE_IN_BLOCKS<(total_blocks_forwarded + 2))))) & (next(STATUS_CLR_INDEX)=(g_c.IRQ_ARM_TO_PRU0 - g_c.IRQ_ARM_TO_PRU0))
+		)  -- Next
+	|
+	((!condT20) & (!condT21) &   -- Ncond
+	condT22 & -- Pcond
+		(next(pcarm_to_pru0) = 3)  & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX) & (next(rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK)=rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK) & (next(EOF)=EOF) & (next(total_blocks_forwarded)=(total_blocks_forwarded + 1)) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=TRUE)
+		)  -- Next
+	|
+	((!condT20) & (!condT21) & (!condT22) &   -- Ncond
+	condT23 & -- Pcond
+		(next(pcarm_to_pru0) = 4)  & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX) & (next(rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK)=rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK) & (next(EOF)=EOF) & (next(total_blocks_forwarded)=(total_blocks_forwarded + 1)) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=TRUE)
+		)  -- Next
+	|
+	((!condT20) & (!condT21) & (!condT22) & (!condT23) &   -- Ncond
+	condT24 & -- Pcond
+		(next(pcarm_to_pru0) = 2)  & (next(total_blocks_forwarded)=total_blocks_forwarded) & (next(rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK)=rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0) & (next(EOF)=(EOF | (NonDeterministicEOF | (g_c.MAX_FILE_SIZE_IN_BLOCKS<(total_blocks_forwarded + 2))))) & (next(STATUS_CLR_INDEX)=(g_c.IRQ_ARM_TO_PRU0 - g_c.IRQ_ARM_TO_PRU0))
+		)  -- Next
+	|
+	(condDefault2 &  -- Ncond
+	TRUE &  -- Pcond
+	(next(pcarm_to_pru0) = pcarm_to_pru0)  & (next(total_blocks_forwarded)=total_blocks_forwarded) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX) & (next(rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK)=rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK) & (next(ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0)=ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0) & (next(EOF)=EOF)	)  -- Next
+	)  -- Consequent executing
+)  -- closing executing
+
+-- End arm_to_pru0 -------------------------------------------------------------
+
+MODULE PRU0ToPRU1(executing, R31, pru_rpmsg_received_STATUS, payload, pru_rpmsg_channel, pru_rpmsg_receive_CALL, pru_rpmsg_init_CALL, local_Buffer, STATUS_CLR_INDEX, rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK, ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0, ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0,g_c) -- Parameters
+
+-- PRU0ToPRU1is a NuSMV module modelling a LLFSM for IMP,
+-- a logic-labelled finite-state machine[2] for IMP language [3].
+-- mcb & vec
+
+-- Variable ProgramCounter (states) for PRU0ToPRU1:
+-- StateNames= ["dInitPRU0ToPRU1", "INITIAL", "COMMS_READY", "CHANNEL_CREATED", "ARM_KICKED_US", "PAYLOAD_RECEIVED", "SEND_TO_OTHER_PRU"]
+VAR
+pcPRU0ToPRU1 : 0..6;
+
+VAR
+-- Local variables for  module PRU0ToPRU1:
+dynamic_Buffer : 0.. g_c.MAX_PAYLOAD;
+
+-- Initial state constraints for fsm PRU0ToPRU1:
+-- Initial state of fsm PRU0ToPRU1 (pc):
+INIT
+(pcPRU0ToPRU1 = 0)
+
+-- Define declarations of LLFSM PRU0ToPRU1:
+DEFINE -- Definitions for easy formula about reaching a state:
+	At_INITIAL := (pcPRU0ToPRU1=1);
+	At_COMMS_READY := (pcPRU0ToPRU1=2);
+	At_CHANNEL_CREATED := (pcPRU0ToPRU1=3);
+	At_ARM_KICKED_US := (pcPRU0ToPRU1=4);
+	At_PAYLOAD_RECEIVED := (pcPRU0ToPRU1=5);
+	At_SEND_TO_OTHER_PRU := (pcPRU0ToPRU1=6);
+DEFINE
+condT30 :=
+	((  (pcPRU0ToPRU1= 0)) & TRUE);
+condT31:=
+	(( (pcPRU0ToPRU1= 1)) & (rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK));
+condT32:=
+	(( (pcPRU0ToPRU1= 2)) & ((pru_rpmsg_channel) = g_c.PRU_RPMSG_SUCCESS));
+condT33:=
+	(( (pcPRU0ToPRU1= 3)) & (ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0));
+condT34:=
+	(( (pcPRU0ToPRU1= 4)) & ((pru_rpmsg_received_STATUS) = g_c.PRU_RPMSG_SUCCESS));
+condT35:=
+	(( (pcPRU0ToPRU1= 4)) & TRUE);
+condT36:=
+	(( (pcPRU0ToPRU1= 5)) & (ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0));
+condT37:=
+	(( (pcPRU0ToPRU1= 6)) & TRUE);
+condDefault3 :=
+	((!condT30) & (!condT31) & (!condT32) & (!condT33) & (!condT34) & (!condT35) & (!condT36) & (!condT37));
+
+-- Transition constraints of LLFSM  PRU0ToPRU1:
+-- Tran(PRU0ToPRU1) = [(0, 1, 1) (1, rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK, 2)(2, (EQUAL pru_rpmsg_channel 1), 3)(3, ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0, 4)(4, (EQUAL pru_rpmsg_received_STATUS 1), 5)(4, 1, 3)(5, ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0, 6)(6, 1, 3)] 
+-- StateNames= ["dInitPRU0ToPRU1", "INITIAL", "COMMS_READY", "CHANNEL_CREATED", "ARM_KICKED_US", "PAYLOAD_RECEIVED", "SEND_TO_OTHER_PRU"]
+TRANS
+ (!executing -> -- If this module is not executing, then keep the values of local variables
+		 -- NOTE: The w_b module and the Effector module preserve values of any variables in LHS of such classes
+		((next(pcPRU0ToPRU1)=pcPRU0ToPRU1)& (next(dynamic_Buffer)=dynamic_Buffer)) 	) -- NOT executing
+	& (executing -> -- If this module is executing, use the defined conditions to perform transitions orderly:
+	( (TRUE &  -- Ncond
+	condT30 &  -- Pcond
+		(next(pcPRU0ToPRU1) = 1) & (next(dynamic_Buffer)=dynamic_Buffer) & (next(pru_rpmsg_receive_CALL)=pru_rpmsg_receive_CALL) & (next(local_Buffer)=local_Buffer) & (next(R31)=R31) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX) & (next(payload)=g_c.NEW_PAYLOAD)
+		) -- Next
+	|
+	((!condT30) &   -- Ncond
+	condT31 & -- Pcond
+		(next(pcPRU0ToPRU1) = 2)  & (next(dynamic_Buffer)=dynamic_Buffer) & (next(payload)=payload) & (next(pru_rpmsg_receive_CALL)=pru_rpmsg_receive_CALL) & (next(local_Buffer)=local_Buffer) & (next(R31)=R31) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX) & (next(pru_rpmsg_init_CALL)=1)
+		)  -- Next
+	|
+	((!condT30) & (!condT31) &   -- Ncond
+	condT32 & -- Pcond
+		(next(pcPRU0ToPRU1) = 3)  & (next(dynamic_Buffer)=dynamic_Buffer) & (next(R31)=R31) & (next(payload)=payload) & (next(pru_rpmsg_receive_CALL)=pru_rpmsg_receive_CALL) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(local_Buffer)=local_Buffer) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX)
+		)  -- Next
+	|
+	((!condT30) & (!condT31) & (!condT32) &   -- Ncond
+	condT33 & -- Pcond
+		(next(pcPRU0ToPRU1) = 4)  & (next(dynamic_Buffer)=dynamic_Buffer) & (next(payload)=payload) & (next(local_Buffer)=local_Buffer) & (next(R31)=R31) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(STATUS_CLR_INDEX)=g_c.IRQ_ARM_TO_PRU0) & (next(pru_rpmsg_receive_CALL)=1)
+		)  -- Next
+	|
+	((!condT30) & (!condT31) & (!condT32) & (!condT33) &   -- Ncond
+	condT34 & -- Pcond
+		(next(pcPRU0ToPRU1) = 5)  & (next(payload)=payload) & (next(local_Buffer)=local_Buffer) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX) & (next(dynamic_Buffer)=payload) & (next(pru_rpmsg_receive_CALL)=0) & (next(R31)=g_c.IRQ_XFR_PRU0plusPRU_IRQ_out_strobe)
+		)  -- Next
+	|
+	((!condT30) & (!condT31) & (!condT32) & (!condT33) & (!condT34) &   -- Ncond
+	condT35 & -- Pcond
+		(next(pcPRU0ToPRU1) = 3)  & (next(dynamic_Buffer)=dynamic_Buffer) & (next(R31)=R31) & (next(payload)=payload) & (next(pru_rpmsg_receive_CALL)=pru_rpmsg_receive_CALL) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(local_Buffer)=local_Buffer) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX)
+		)  -- Next
+	|
+	((!condT30) & (!condT31) & (!condT32) & (!condT33) & (!condT34) & (!condT35) &   -- Ncond
+	condT36 & -- Pcond
+		(next(pcPRU0ToPRU1) = 6)  & (next(dynamic_Buffer)=dynamic_Buffer) & (next(payload)=payload) & (next(pru_rpmsg_receive_CALL)=pru_rpmsg_receive_CALL) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX) & (next(local_Buffer)=dynamic_Buffer) & (next(R31)=g_c.IRQ_XFR_PRU0plusPRU_IRQ_out_strobe)
+		)  -- Next
+	|
+	((!condT30) & (!condT31) & (!condT32) & (!condT33) & (!condT34) & (!condT35) & (!condT36) &   -- Ncond
+	condT37 & -- Pcond
+		(next(pcPRU0ToPRU1) = 3)  & (next(dynamic_Buffer)=dynamic_Buffer) & (next(R31)=R31) & (next(payload)=payload) & (next(pru_rpmsg_receive_CALL)=pru_rpmsg_receive_CALL) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(local_Buffer)=local_Buffer) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX)
+		)  -- Next
+	|
+	(condDefault3 &  -- Ncond
+	TRUE &  -- Pcond
+	(next(pcPRU0ToPRU1) = pcPRU0ToPRU1)  & (next(dynamic_Buffer)=dynamic_Buffer) & (next(R31)=R31) & (next(payload)=payload) & (next(pru_rpmsg_receive_CALL)=pru_rpmsg_receive_CALL) & (next(pru_rpmsg_init_CALL)=pru_rpmsg_init_CALL) & (next(local_Buffer)=local_Buffer) & (next(STATUS_CLR_INDEX)=STATUS_CLR_INDEX)	)  -- Next
+	)  -- Consequent executing
+)  -- closing executing
+
+-- End PRU0ToPRU1 -------------------------------------------------------------
+
+MODULE RoundRobinScheduler()-- This module models a round robin scheduler of an arrangement of LLFSMs 
+-- (See: 
+-- Carrillo, M. Estivill-Castro, V. Rosenblueth, D. A. 'Verification and Simulation of Time-Domain Properties for Models of Behaviour'
+--  S. Hammoudi et al. (Eds.): MODELSWARD 2020, CCIS 1361, pp. 1–25, 2021
+--    https://doi.org/10.1007/978-3-030-67445-8_10)
+-- Input: (NO INPUTS)
+
+-- Output: turn
+
+--
+-- Variable to record the execution turn:
+VAR
+	turn : 0..3;
+
+DEFINE
+	executing0:= (turn=0);
+	executing1:= (turn=1);
+	executing2:= (turn=2);
+	executing3:= (turn=3);
+-- Initial states for RoundRobinScheduler module (turn and whiteboard variables):
+INIT
+	(turn = 0)
+
+-- Transitions for RoundRobinScheduler module:
+TRANS
+	((turn=0) & -- cond
+		next(turn=1) ) -- next
+	|
+	((turn=1) & -- cond
+		next(turn=2) ) -- next
+	|
+	((turn=2) & -- cond
+		next(turn=3) ) -- next
+	|
+	((turn=3) & -- cond
+		next(turn=0) ) -- next
+
+-- End RoundRobinScheduler -------------------------------------------------------------
+
+MODULE main
+-- Text of this NuSMV module was automatically generated by Java EMF model converter implemented  in:
+--       Netbeans project JavaLLFSMsTransformation
+-- The input model is in the configuration file but see arrangement name below
+-- The output is a modular NuSMV model is Pru0ToPru1.smv
+-- This is the main module of NuSMV file modelling an arrangement of LLFSMs:PRUSideSender
+-- Exported to a NuSMV file an arrangement of logic-labelled finite-state machines (LLFSMs)[2]
+-- for the IMP language [3].
+-- Control of the arrangement is exported to the Main module of the NuSMV file.
+-- Each fsm of the arrangement is exported to a NuSMV module.
+-- [2] Estivill-Castro V, Hexel R, Lusty C. High performance relaying of C++11 objects across processes and logic-labeled finite-state machines. International Conference on Simulation, Modeling, and Programming for Autonomous Robots, pp. 182-194. Springer, 2014
+-- [3] Winskel G. The formal semantics of programming languages: an introduction. MIT press, 1993.
+
+--
+-- Instance for global constants, we always have one
+-- Instance for scheduler, we always have one
+VAR
+g_c:g_c();
+sch:RoundRobinScheduler();
+--
+-- Instance for sensor variables: they are always read only
+Sensor:Sensor(g_c);
+w_b: Whiteboard(sch.turn
+	-- turnsOfpru_rpmsg_init_CALL
+, {0,3}
+	-- turnsOfSTATUS_CLR_INDEX
+, {2,3}
+	-- turnsOfpru_rpmsg_receive_CALL
+, {3}
+	-- turnsOfpru_rpmsg_channel
+, {0}
+	-- turnsOfpayload
+, {3}
+	-- turnsOfpru_rpmsg_received_STATUS
+, {0}
+	-- turnsOfR31
+, {1,3}
+	-- turnsOflocal_Buffer
+, {3}
+	-- turnsOfrpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK
+, {2}
+	-- turnsOfEOF
+, {2}
+	-- turnsOfENA_STATUS_bit_for_IRQ_ARM_TO_PRU0
+, {0,2}
+	-- turnsOfENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0
+, {1},g_c);
+
+LINUX_KERNEL : LINUX_KERNEL(sch.executing0, w_b.pru_rpmsg_received_STATUS, w_b.pru_rpmsg_channel, w_b.pru_rpmsg_receive_CALL, w_b.pru_rpmsg_init_CALL, w_b.ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0,g_c);
+
+pru1_to_arm : pru1_to_arm(sch.executing1, w_b.R31, w_b.local_Buffer, w_b.ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0,g_c);
+
+arm_to_pru0 : arm_to_pru0(sch.executing2, Sensor.NonDeterministicEOF, w_b.STATUS_CLR_INDEX, w_b.rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK, w_b.ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0, w_b.EOF,g_c);
+
+PRU0ToPRU1 : PRU0ToPRU1(sch.executing3, w_b.R31, w_b.pru_rpmsg_received_STATUS, w_b.payload, w_b.pru_rpmsg_channel, w_b.pru_rpmsg_receive_CALL, w_b.pru_rpmsg_init_CALL, w_b.local_Buffer, w_b.STATUS_CLR_INDEX, w_b.rpmsg_vdev_statusAndVIRTIO_CONGIG_S_DRIVER_OK, w_b.ENA_STATUS_bit_for_IRQ_XFR_PRU1_TO_PRU0, w_b.ENA_STATUS_bit_for_IRQ_ARM_TO_PRU0,g_c);
+
+--
+-- End  -------------------------------------------------------------
+
