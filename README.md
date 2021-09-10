@@ -28,18 +28,20 @@ Device tree source must be compiled to a binary, then copied to the uBoot/dtb fo
 The general defines header file has IO pin definitions for LEDs, buttons and LCD connections, it mentions this reliance on the device tree file.
 
 ## General Notes
-## Compiler Flags
+### Compiler Flags
 At times, the compiler flag PRU_UCFSM (under a #define) is used to add PRU specific code, allowing easier portability to compile and run on Linux without those lines added.  In most cases, this is because the flag is only used when compiling for the PRU, and the "native host" Linux Makefile won't have this in its command to the compiler binary.
 
-## Random Usage Tips
+### Random Usage Tips
 Run these commands before loading PRU firmware:
+
 DYNAMIC_DEBUG needs to be enabled in the Kernel before below works:
+
 echo 8 > /proc/sys/kernel/printk
 echo -n 'module remoteproc +p' > /sys/kernel/debug/dynamic_debug/control
 echo -n 'module pru_rproc +p' > /sys/kernel/debug/dynamic_debug/control
 
 
-## Other Resources
+### Other Resources
 TI's git with their PRU examples: https://git.ti.com/cgit/pru-software-support-package/pru-software-support-package/
 TI tools & links for the SoC in the BeagleBone AI
 
