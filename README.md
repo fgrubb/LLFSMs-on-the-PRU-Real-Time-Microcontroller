@@ -37,7 +37,9 @@ Run these commands before loading PRU firmware:
 DYNAMIC_DEBUG needs to be enabled in the Kernel before below works:
 
 echo 8 > /proc/sys/kernel/printk
+
 echo -n 'module remoteproc +p' > /sys/kernel/debug/dynamic_debug/control
+
 echo -n 'module pru_rproc +p' > /sys/kernel/debug/dynamic_debug/control
 
 
