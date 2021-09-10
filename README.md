@@ -47,7 +47,7 @@ echo -n 'module pru_rproc +p' > /sys/kernel/debug/dynamic_debug/control
 ##### Stack & Heap
 If your app keeps crashing, freezing, and you have no idea why, or what it's doing (always helps to have the JTAG if you can get it)
 Check to make sure the heap and stack are not too small (you don't have to just make both bigger, you may find out its the heap that's the issue)
-Review your Makefile settings for the compiler:
+Review your Makefile settings for the compiler in ALL Makefiles, including libraries:
 STACK_SIZE=0x100
 HEAP_SIZE=0x100
 
