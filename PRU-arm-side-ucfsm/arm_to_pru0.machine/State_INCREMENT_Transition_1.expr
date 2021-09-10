@@ -1,0 +1,2 @@
+(ch = input_file->get()) != EOF 
+

@@ -1,0 +1,201 @@
+#############################################################################################
+# (c) 2021 Vlad Estivill-Castro. A makefile to compile a LLFSM machine locally on te host
+# using the new version of ucfsm we know compiles for the debian/arm  Ubuntu/Linuex Intel
+# and the TI/PRU
+#
+# Strategy is to copy
+# all files of ucfsm
+# all fles of the machine
+# compile in a local directory
+#############################################################################################
+
+ifndef MACHINE_NAME
+define ERROR_BODY
+
+*********************************************************************
+Please define MACHINE_NAME
+For instance:
+	make -f LOCALMakefile MACHINE_NAME=arm_to_pru0
+or
+	make -f LOCALMakefile MACHINE_NAME=pru1_to_arm
+
+*********************************************************************
+
+endef
+$(error $(ERROR_BODY))
+endif
+
+ifeq ($(MACHINE_NAME),arm_to_pru0)
+	GEN_DIR=local0
+else
+	GEN_DIR=local1
+endif
+
+MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+CURRENT_DIR := $(notdir $(patsubst %/,%,$(dir $(MKFILE_PATH))))
+PROJ_NAME=$(CURRENT_DIR)
+CURRENT_PATH=$(shell pwd)
+UCFSM_DIR=../../PRU_ucfsm
+LIBS=
+INCLUDE_MACHINE_DIR=$(GEN_DIR)/./$(MACHINE_NAME).machine
+INCLUDE_UCFSM_DIR=$(GEN_DIR)/ucfsm
+#Common compiler and linker flags (Defined in 'PRU Optimizing C/C++ Compiler User's Guide)
+CFLAGS=
+#Linker flags (Defined in 'PRU Optimizing C/C++ Compiler User's Guide)
+LFLAGS=--reread_libs --warn_sections 
+
+TARGET=$(GEN_DIR)/$(PROJ_NAME)_$(GEN_DIR).exe
+UCFSM_SOURCES=$(wildcard $(UCFSM_DIR)/*.cc)
+UCFSM_SOURCES_COPIED=$(patsubst $(UCFSM_DIR)/%,%,$(UCFSM_SOURCES))
+UCFSM_INCLUDES=$(wildcard *.h)
+UCFSM_OBJECTS=$(patsubst %,$(GEN_DIR)/ucfsm/%,$(UCFSM_SOURCES_COPIED:.cc=.object))
+MACHINE_SOURCES= $(filter-out %_Internal.mm, $(filter-out %_OnExit.mm, $(filter-out %_OnEntry.mm, $(filter-out %_OnResume.mm, $(filter-out %_OnSuspend.mm, $(filter-out  %VarRefs.mm,  $(wildcard ./$(MACHINE_NAME).machine/*.mm) ) ) ) ) ) )
+MACHINE_CONFIG_SOURCES=$(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+MACHINE_CC_SOURCES=$(patsubst %,$(GEN_DIR)/%,$(MACHINE_SOURCES:.mm=.cc))
+MACHINE_OBJECTS=$(patsubst %,$(GEN_DIR)/%,$(MACHINE_SOURCES:.mm=.object))
+MACHINE_CONFIG_OBJECTS=$(patsubst %,%,$(MACHINE_CONFIG_SOURCES:.cc=.object))
+
+
+
+all: build_dir printStart $(TARGET) printEnd
+
+test:
+	@echo MKFILE_PATH = $(MKFILE_PATH)
+	@echo CURRENT_DIR = $(CURRENT_DIR)
+	@echo PROJ_NAME = $(PROJ_NAME)
+	@echo CURRENT_PATH = $(CURRENT_PATH)
+	@echo UCFSM_SOURCES = $(UCFSM_SOURCES)
+	@echo UCFSM_SOURCES_COPIED = $(UCFSM_SOURCES_COPIED)
+	@echo UCFSM_OBJECTS = $(UCFSM_OBJECTS)
+	@echo MACHINE_CONFIG_SOURCES = $(MACHINE_CONFIG_SOURCES)
+
+
+build_dir: 
+	mkdir -p $(GEN_DIR)
+
+printStart:
+	@echo ''
+	@echo '************************************************************'
+	@echo '************************************************************'
+	@echo '***************** Building LOCAL project: $(PROJ_NAME)'
+	@echo '************************************************************'
+	@echo '***************** ucfsm files that need compilation: $(UCFSM_SOURCES)'
+	@echo '************************************************************'
+	@echo '***************** machine files that need compilation: $(MACHINE_SOURCES)'
+	@echo '************************************************************'
+	@echo '***************** machine files as CC that need compilation: $(MACHINE_CC_SOURCES)'
+	@echo '************************************************************'
+	@echo '***************** Corresponding ucfsm object files: $(UCFSM_OBJECTS)'
+	@echo '************************************************************'
+	@echo '***************** Corresponding machine object files to mm files: $(MACHINE_OBJECTS)'
+	@echo '************************************************************'
+	@echo '************************************************************'
+	@echo '***************** Corresponding config machine object files: $(MACHINE_CONFIG_OBJECTS)'
+	@echo '************************************************************'
+	@echo ''
+	
+printEnd:
+	@echo ''
+	@echo 'Output files can be found in the "$(GEN_DIR)" directory'
+	@echo ''
+	@echo 'Finished building project: $(PROJ_NAME)'
+	@echo '************************************************************'
+	@echo ''
+
+# Invokes the linker 
+$(TARGET): copyUcfsm $(UCFSM_OBJECTS) copyMachine $(MACHINE_OBJECTS)  $(MACHINE_CONFIG_OBJECTS)
+	@echo ''
+	@echo 'Building target: $@'
+	@echo 'Invoking: Linker on Host'
+	g++ -o $(TARGET) $(UCFSM_OBJECTS) $(MACHINE_OBJECTS) $(MACHINE_CONFIG_OBJECTS)
+	@echo 'Finished building target: $@'
+
+# Create the build folder for the machine and copy accross the machine's files
+# IGNORE any error in copying
+copyMachine :  $(MACHINE_SOURCES)
+	@echo ''
+	@mkdir -p $(GEN_DIR)/$(MACHINE_NAME).machine
+	@echo '#*#*#* Coping machine Files  files '
+	-cp ./$(MACHINE_NAME).machine/*.h $(GEN_DIR)/./$(MACHINE_NAME).machine
+	-cp ./$(MACHINE_NAME).machine/*VarRefs.mm $(GEN_DIR)/./$(MACHINE_NAME).machine
+	-cp ./$(MACHINE_NAME).machine/*FuncRefs.mm $(GEN_DIR)/./$(MACHINE_NAME).machine | true
+	-cp ./$(MACHINE_NAME).machine/*_OnExit.mm $(GEN_DIR)/./$(MACHINE_NAME).machine
+	-cp ./$(MACHINE_NAME).machine/*_Internal.mm $(GEN_DIR)/./$(MACHINE_NAME).machine
+	-cp ./$(MACHINE_NAME).machine/*.expr $(GEN_DIR)/./$(MACHINE_NAME).machine  | true
+	-cp ./$(MACHINE_NAME).machine/*_OnEntry.mm $(GEN_DIR)/./$(MACHINE_NAME).machine
+	@echo ''
+
+$(MACHINE_CC_SOURCES) : $(MACHINE_SOURCES)
+	@echo ''
+	@echo '#*#*#* Using machine mm files copied to cc for building : $<'
+	echo ' a FILENAME:  $(subst $(GEN_DIR)/./,,$(subst .cc,.mm,$@))'
+	cp $(subst $(GEN_DIR)/./,,$(subst .cc,.mm,$@)) $@
+	@echo ''
+
+# Invokes the compiler on all mm (now cc) files in the machine directory to create the object files
+$(MACHINE_OBJECTS): $(MACHINE_CC_SOURCES)
+	@echo ''
+	@echo '#*#*#* Building Machine object file: '
+	@echo '#*#*#* Invoking: Host compiler on machine sources'
+	@echo '#*#*#*  Target $(subst .object,.cc,$@)'
+	g++ -c -I$(INCLUDE_MACHINE_DIR) -I$(INCLUDE_UCFSM_DIR)  -o $@ $(subst .object,.cc,$@)
+	@echo ''
+
+$(MACHINE_CONFIG_OBJECTS):  $(MACHINE_CONFIG_SOURCES)
+	@echo ''
+	@echo '#*#*#* Building Machine Config object file: $<'
+	@echo '#*#*#* Invoking: Host compiler on arrangement config files'
+	g++ -c -I$(INCLUDE_MACHINE_DIR) -I$(INCLUDE_UCFSM_DIR) $(CFLAGS) -o $@ $<
+
+
+###########################################
+# Build Config for one machine
+# #########################################
+#$(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc : $(MACHINE_NAME).machine
+$(MACHINE_CONFIG_SOURCES): $(MACHINE_NAME).machine
+	@echo '#*#*#* Building ucfsm_config.cc for: $<'
+	rm -f $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo '// GENERTAED config file for one machine only '>> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo '#include "${MACHINE_NAME}_Includes.h"'>> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo '#include "${MACHINE_NAME}.h"' >> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo '' >> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo 'static FSM::CLM::${MACHINE_NAME} machine;'  >> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo 'FSM::CLMachine *finite_state_machines[1] = {' >> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo '      &machine' >> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo '};' >> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo '' >> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+	echo 'unsigned char number_of_fsms = 1;' >> $(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
+
+
+# Create the build folder for a copy of ucfsm 
+# IGNORE any error in copying
+copyUcfsm :  $(UCFSM_OBJECTS_LOCAL)
+	@echo ''
+	@mkdir -p $(GEN_DIR)/ucfsm
+	@echo '#*#*#* Coping ucfsm Files  files '
+	-cp $(UCFSM_DIR)/*.h $(GEN_DIR)/ucfsm
+	-cp $(UCFSM_DIR)/*.cc $(GEN_DIR)/ucfsm
+	@echo ''
+
+$(UCFSM_OBJECTS): $(UCFSM_SOURCES)
+	@echo ''
+	@echo '#*#*#* Building ucfsm object files: '
+	@echo '#*#*#* Invoking: Host compiler on ucfsm sources'
+	@echo '#*#*#*  Target $(subst .object,.cc,$@)'
+	g++ -c -I$(INCLUDE_UCFSM_DIR)  -o $@ $(subst .object,.cc,$@)
+	@echo ''
+
+.PHONY: all clean
+
+# Remove the $(GEN_DIR) directory
+clean: build_dir
+	@echo ''
+	@echo '************************************************************'
+	@echo 'Cleaning project: $(PROJ_NAME)'
+	@echo ''
+	@echo 'Removing files in the "$(GEN_DIR)" directory'
+	@rm -rf $(GEN_DIR)
+	@echo ''
+	@echo 'Finished cleaning project: $(PROJ_NAME)'
+	@echo '************************************************************'
+	@echo ''
