@@ -32,6 +32,7 @@ The general defines header file has IO pin definitions for LEDs, buttons and LCD
 At times, the compiler flag PRU_UCFSM (under a #define) is used to add PRU specific code, allowing easier portability to compile and run on Linux without those lines added.  In most cases, this is because the flag is only used when compiling for the PRU, and the "native host" Linux Makefile won't have this in its command to the compiler binary.
 
 ### Random Usage Tips
+#### Debugging
 Run these commands before loading PRU firmware:
 
 DYNAMIC_DEBUG needs to be enabled in the Kernel before below works:
@@ -42,6 +43,13 @@ echo -n 'module remoteproc +p' > /sys/kernel/debug/dynamic_debug/control
 
 echo -n 'module pru_rproc +p' > /sys/kernel/debug/dynamic_debug/control
 
+#### Compiling & Other Related Advice
+##### Stack & Heap
+If your app keeps crashing, freezing, and you have no idea why, or what it's doing (always helps to have the JTAG if you can get it)
+Check to make sure the heap and stack are not too small (you don't have to just make both bigger, you may find out its the heap that's the issue)
+Review your Makefile settings for the compiler:
+STACK_SIZE=0x100
+HEAP_SIZE=0x100
 
 ### Other Resources
 
