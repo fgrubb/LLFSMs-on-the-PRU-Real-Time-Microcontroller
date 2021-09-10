@@ -23,8 +23,11 @@ Important output:
 However, all the states without successors are
 non-reachable, so the machine is deadlock-free.
 ##########################################################
+
 -- specification  G (arm_to_pru0.At_OUTPUT_TAIL -> (file_generator.At_TEST_EOF & w_b.EOF))  is true
+
 -- specification  G (arm_to_pru0.At_FILES_OPEN -> (w_b.EOF ->  F arm_to_pru0.At_OUTPUT_TAIL))  is true
+
 -- specification  G (arm_to_pru0.At_OUTPUT_TAIL -> arm_to_pru0.total_output = file_generator.total_chars_generated + 1)  is true
 
 Example of the PRU-0 side machine:
@@ -37,6 +40,8 @@ Important output:
 However, all the states without successors are
 non-reachable, so the machine is deadlock-free.
 ##########################################################
+
 -- specification  G ((arm_to_pru0.At_OUTPUT_TAIL & pru1_to_arm.At_RESET) ->  F ( G arm_to_pru0.total_blocks_forwarded = pru1_to_arm.total_blocks_received))  is true
+
 -- specification  G ((arm_to_pru0.At_OUTPUT_TAIL & pru1_to_arm.At_RESET) ->  F [0,12]  G arm_to_pru0.total_blocks_forwarded = pru1_to_arm.total_blocks_received)  is true
 
