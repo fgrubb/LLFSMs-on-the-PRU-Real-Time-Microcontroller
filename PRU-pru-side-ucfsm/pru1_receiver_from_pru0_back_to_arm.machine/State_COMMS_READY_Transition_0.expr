@@ -1,0 +1,1 @@
+pru_rpmsg_channel(RPMSG_NS_CREATE, &transport, RPMSG_CHAN_DRV, RX_CHAN_DESC, RPMSG_PORT) == PRU_RPMSG_SUCCESS
