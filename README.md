@@ -44,7 +44,19 @@ echo -n 'module pru_rproc +p' > /sys/kernel/debug/dynamic_debug/control
 
 
 ### Other Resources
+
+
+#### TI tools & links for the SoC in the BeagleBone AI
 TI's git with their PRU examples: https://git.ti.com/cgit/pru-software-support-package/pru-software-support-package/
-TI tools & links for the SoC in the BeagleBone AI
+
+https://www.ti.com/tool/PROCESSOR-SDK-AM57X
+
+https://www.ti.com/tool/download/PROCESSOR-SDK-LINUX-AM57X#downloads
+
+Linux SDK release notes:
+https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Release_Specific_PLSDK_Release_Notes.html
+
+Linux SDK documentation & intermediate intro to PRU:
+https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_PRU-ICSS_PRU_ICSSG.html
 
 &copy; Fisher Grubb & Prof Vladimir Estivill-Castro: the authors of the paper submitted to ISCeng2021, developers of this software.
