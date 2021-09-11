@@ -3,6 +3,13 @@
 This repository holds the LLFSM state machines and other resources for the paper published.
 Extra important information not put in the paper will be put here as an addition.
 
+If state-machines aren't as important to you, and you're looking for generic code to use PRU features or attachments, of immediate use is:
+
+LCD library for generic character LCDs (made for 4 lines x 20 chars, should work with 2 lines x 16 chars)
+IEP timer, essentially a 64 bit timer, there is a function to configure it, including for an interrupt flag, and to read it for use similar to the Arduino micros().
+Sending registers between PRUs for fast transfer without ARM interaction over the XFR bus, this involves interrupts and preventing timeouts, and dealing with them.
+Different tips and tricks in the code comments to explain what it is doing and why.
+
 The board is a BeagleBone AI (AM5729), this is the multi-core, multi-arch upgrade to the BeagleBone Black (which used the Sitara AM3359).
 The examples here run on the PRU, in the AI, this is 4 cores (only 2 used in this example), the Black has 2 cores, mostly the same, but their register definitions will be slighly different.
 This code could be easily ported to the Black if one goes through the register names in the code and matches them up with the AM335x headers.
@@ -10,7 +17,7 @@ The main difference is likely the IEP timer configuration, and reading the timer
 The interrupts are configured automatically by the Linux Kernel Module (from TI, as part of the standard BB install from beagleboard.org), the PRU firmware resource_table header has the data structure arrays which the Kernel Module interprates, and configures.  One can do this manually, but leaving it to the LKM is done for it to also set up the needed Vring buffers and options to receive interrupts on the Linux side.  It also helps when using dmesg to look at logs when the firmware starts.
 
 ### Notes:
-Still currently updating this repository, we hope to add ucFSM binaries at least for things to work as there's currently no straightforward answer in adding their source.
+Soon enough, the Makefiles will be reconfigured for the whole thing to build here, as it is being migrated from a separate folder structure etc.
 
 ## Contents of this Repository
 State machines using the LLFSM structure, which are run on the ucFSM scheduler for "Bare Metal" applications on micro-controllers.
