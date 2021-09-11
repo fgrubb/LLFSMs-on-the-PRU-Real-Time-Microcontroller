@@ -9,6 +9,9 @@ This code could be easily ported to the Black if one goes through the register n
 The main difference is likely the IEP timer configuration, and reading the timer.  The AI uses 2 x 32 bit registers, making it a 64 bit timer, the Black has a single 32 bit timer register.
 The interrupts are configured automatically by the Linux Kernel Module (from TI, as part of the standard BB install from beagleboard.org), the PRU firmware resource_table header has the data structure arrays which the Kernel Module interprates, and configures.  One can do this manually, but leaving it to the LKM is done for it to also set up the needed Vring buffers and options to receive interrupts on the Linux side.  It also helps when using dmesg to look at logs when the firmware starts.
 
+### Notes:
+Still currently updating this repository, we hope to add ucFSM binaries at least for things to work as there's currently no straightforward answer in adding their source.
+
 ## Contents of this Repository
 State machines using the LLFSM structure, which are run on the ucFSM scheduler for "Bare Metal" applications on micro-controllers.
 
