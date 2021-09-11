@@ -1,4 +1,4 @@
-# LLFSMs-on-the-PRU-Real-Time-Microcontroller
+# LLFSMs on the PRU Real-Time Microcontroller
 
 This repository holds the LLFSM state machines and other resources for the paper published.
 Extra important information not put in the paper will be put here as an addition.
