@@ -1,2 +1,0 @@
-pru_rpmsg_send(&transport, RPMSG_PORT, RPMSG_PRU_PORT, payload, len) == PRU_RPMSG_SUCCESS
-

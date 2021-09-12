@@ -1,2 +1,0 @@
-pru_rpmsg_receive(&transport, &src, &dst, payload, &len) == PRU_RPMSG_SUCCESS
-
