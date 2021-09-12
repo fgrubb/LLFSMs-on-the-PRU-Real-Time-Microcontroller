@@ -1,9 +1,9 @@
 #############################################################################################
 # (c) 2021 Vlad Estivill-Castro. A makefile to compile a LLFSM machine locally on te host
-# using the new version of ucfsm we know compiles for the debian/arm  Ubuntu/Linux Intel
+# using the new version of ucfsm we know compiles for the debian/arm  Ubuntu/Linux Intell
 # and the TI/PRU
 #
-# Strategy is to copy
+# Stratety is to copy
 # all files of ucfsm
 # all fles of the machine
 # compile in a local directory
@@ -13,21 +13,24 @@ ifndef PRU_CGT
 define ERROR_BODY
 
 *******************************************************************************
-PRU_CGT environment variable is not set. Examples of a path (Desktop Linux):
-export PRU_CGT=~/ti/ccs1010/ccs/tools/compiler/ti-cgt-pru_2.3.3
+PRU_CGT environment variable is not set. Examples given:
+(Desktop Linux)
 
+export PRU_CGT=/home/fisher/ti/ccs1010/ccs/tools/compiler/ti-cgt-pru_2.3.3
+
+export PRU_CGT=~/Griffith/MPhil/Beaglebone_Boards/Software_Tools/ti_cgt_pru_2.3.3
+
+Vlad:
+export PRU_CGT=/home/Vlad/ti-cgt-pru_2.3.3
 
 /path/to/pru/code/gen/tools/ti-cgt-pru_2.1.2
-(Windows):
-set PRU_CGT=C:/path/to/pru/code/gen/tools/ti-cgt-pru_2.1.2
+(Windows) set PRU_CGT=C:/path/to/pru/code/gen/tools/ti-cgt-pru_2.1.2
 
-(ARM Linux):
-export PRU_CGT=/usr/share/ti/cgt-pru
+(ARM Linux*) export PRU_CGT=/usr/share/ti/cgt-pru
 
 *ARM Linux also needs to create a symbolic link to the /usr/bin/ directory in
 order to use the same Makefile
-(ARM Linux):
-ln -s /usr/bin/ /usr/share/ti/cgt-pru/bin
+(ARM Linux) ln -s /usr/bin/ /usr/share/ti/cgt-pru/bin
 *******************************************************************************
 
 endef
@@ -41,7 +44,7 @@ define LOCAL_ERROR_BODY
 You must define PRU_LOCAL_HOME so that the local libraries (installed with make install)
 can be founds and their headers for compiled libraries are in a well known place. 
 Typically  ../local
-For instance: export PRU_LOCAL_HOME=../local
+For instance: export PRU_LOCAL_HOME=../../local
 *******************************************************************************
 endef
 $(error $(LOCAL_ERROR_BODY))
@@ -53,12 +56,12 @@ define MACHINE_ERROR_BODY
 *********************************************************************
 Please define MACHINE_NAME
 For instance:
-	make -f PRUMakefile MACHINE_NAME=arm_receiver_and_sender_from_pru0_to_pru1 [USING_RPMSG=defined if not using wrapper] [PRU=0/1]
-	Select which PRU core, 0 receives from ARM, 1 sends back after it received from 0.
+	make -f PRUMakefile MACHINE_NAME=arm_receiver_and_sender_from_pru0_to_pru1 [USING_RPMSG=defined] [PRU=0/1]
 or
-	make -f PRUMakefile MACHINE_NAME=pru1_receiver_from_pru0_back_to_arm [USING_RPMSG=defined if not using wrapper] [PRU=0/1]
+	make -f PRUMakefile MACHINE_NAME=pru1_receiver_from_pru0_back_to_arm [USING_RPMSG=defined] [PRU=0/1]
 	
 	Don't define USING_RPMSG variable if using wrapper.
+	Don't define PRU variable if doing for PRU0
 #	make -f PRUMakefile MACHINE_NAME=receiver_from_pru0_to_pru1_and_arm_sender [USING_RPMSG=defined]
 
 *********************************************************************
@@ -67,11 +70,11 @@ endef
 $(error $(MACHINE_ERROR_BODY))
 endif
 
-#ifeq ($(MACHINE_NAME),arm_receiver_and_sender_from_pru0_to_pru1)
-#	GEN_DIR=gen0
-#else
-#	GEN_DIR=gen1
-#endif
+ifeq ($(MACHINE_NAME),arm_receiver_and_sender_from_pru0_to_pru1)
+	GEN_DIR=gen0
+else
+	GEN_DIR=gen1
+endif
 
 MKFILE_PATH = $(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_DIR = $(notdir $(patsubst %/,%,$(dir $(MKFILE_PATH))))
@@ -79,9 +82,8 @@ PROJ_NAME=$(CURRENT_DIR)
 CURRENT_PATH=$(shell pwd)
 UCFSM_DIR=../../PRU_ucfsm
 LINKER_COMMAND_FILE=$(PRU_LOCAL_HOME)/include_TI_regs/AM57xx_PRU.cmd
-LIBS= --library=$(PRU_LOCAL_HOME)/libs/PRU-ucfsm-timer.object --library=$(PRU_LOCAL_HOME)/libs/PRU-LEDS.object --library=$(PRU_LOCAL_HOME)/lib/rpmsg_lib.lib --library=$(PRU_LOCAL_HOME)/libs/pru_comms.object
+LIBS= --library=$(PRU_LOCAL_HOME)/libs/PRU-ucfsm-timer-lib.object --library=$(PRU_LOCAL_HOME)/libs/PRU-LEDS.object --library=$(PRU_LOCAL_HOME)/lib/rpmsg_lib.lib --library=$(PRU_LOCAL_HOME)/libs/pru_comms.object
 
-GEN_DIR=gen0
 INCLUDE_MACHINE_DIR=--include_path=$(GEN_DIR)/./$(MACHINE_NAME).machine --include_path=.
 INCLUDE_UCFSM_DIR=--include_path=$(GEN_DIR)/ucfsm --include_path=$(GEN_DIR)
 INCLUDE=--include_path=$(PRU_CGT)/include --include_path=$(PRU_LOCAL_HOME)/include_TI_regs  --include_path=$(PRU_LOCAL_HOME)/include_TI_regs/am572x_2_0  --include_path=$(PRU_LOCAL_HOME)/includes/
@@ -115,9 +117,8 @@ RESOURCE_TABLE_SOURCES=$(GEN_DIR)/Resource_Table_Wrapper.cpp
 RESOURCE_TABLE_OBJECTS=$(patsubst %,%,$(RESOURCE_TABLE_SOURCES:.cpp=.object))
 endif
 
-ifeq ($(PRU), 1)
+ifdef PRU
 CFLAGS+=-DPRU1
-GEN_DIR=gen1
 endif
 
 all: build_dir printStart $(TARGET) printEnd
@@ -219,11 +220,11 @@ $(RESOURCE_TABLE_OBJECTS):  $(RESOURCE_TABLE_SOURCES)
 	@echo '#*#*#* Invoking: Host compiler on arrangement config files'
 	$(PRU_CGT)/bin/clpru $(INCLUDE)  $(CFLAGS) -fe $@ $<
 
-$(RESOURCE_TABLE_SOURCES): ./Resource_Table_Wrapper.cpp ./Resource_Table_Wrapper.h 
+$(RESOURCE_TABLE_SOURCES): ./CPP-Test/Resource_Table_Wrapper.cpp ./CPP-Test/Resource_Table_Wrapper.h 
 	@mkdir -p $(GEN_DIR)
 	@echo '#*#*#* Building wrapper for resorce table to deliver for: $<'
-	-cp ./Resource_Table_Wrapper.cpp $(GEN_DIR)/
-	-cp ./Resource_Table_Wrapper.h $(GEN_DIR)/
+	-cp ./CPP-Test/Resource_Table_Wrapper.cpp $(GEN_DIR)/
+	-cp ./CPP-Test/Resource_Table_Wrapper.h $(GEN_DIR)/
 
 $(RESOURCE_TABLE_INCLUDES): resource_table_RPMSG_defs_0.h resource_table_RPMSG_data_0.h 
 	@mkdir -p $(GEN_DIR)
