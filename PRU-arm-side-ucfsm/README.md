@@ -38,8 +38,18 @@ The sending of input to the arm with model-driven software devleopment as this i
 a llfsm for ucfsm.
 
 
+BUILD NECESSARY LIBRARIES
+=================================================
+In Fisher-libs set up the target for local includes and libraries.
+Then
+ make clean
+ make
+ make install
+
+
 PROPER LLFSMs for arm-pru and back communication
 ================================================
+(these shall copimpile in debian and ubuntu without Fisher-libs, but with PRU-ucfsm)
 
 Typically, clean first
 
@@ -53,15 +63,24 @@ Then build:
 
 make -f LOCALMakefile MACHINE_NAME=arm_to_pru0
 
-make -f LOCALMakefile MACHINE_NAME=pru1_to_arm clean
+make -f LOCALMakefile MACHINE_NAME=pru1_to_arm 
 
 The machines are each in their destination directories local0 and local1
 
 THE LLFSMS that run in the PRU
 ===============================
 They are in the directory Paper-LLFSM-PRU/PRU-pru-side-ucfsm. You need the environment with the cross-compiler.
+and the local libraries export PRU_LOCAL_HOME=../../local
 
 make -f PRUMakefile clean
+will give you errors if those environment variables are not set.
+
+Cleaning:
+make -f PRUMakefile MACHINE_NAME=arm_receiver_and_sender_from_pru0_to_pru1 clean
+make -f PRUMakefile MACHINE_NAME=pru1_receiver_from_pru0_back_to_arm  clean
+
+
+Building:
 
 make -f PRUMakefile MACHINE_NAME=arm_receiver_and_sender_from_pru0_to_pru1 
 builds to run in the PRU0 the machine that receives from the arm and forwards to PRU1.
@@ -69,6 +88,8 @@ builds to run in the PRU0 the machine that receives from the arm and forwards to
 
 make -f PRUMakefile MACHINE_NAME=pru1_receiver_from_pru0_back_to_arm  PRU=1
 build to run in the PRU1 the machine that receives from PRU0 and forwards to arm.
+
+SOMETHING IS NOT BUILDING PRU-ucfsm-timer.object into libs
 
 MOVE the cross compile to run in PRU(s)
 ===========================================
@@ -83,7 +104,7 @@ cp PRU-pru-side-ucfsm_gen1.exe /lib/firmware/
 
 Indicate who is running what
 echo "PRU-pru-side-ucfsm_gen0.exe" > /sys/class/remoteproc/remoteproc2/firmware
-echo "PRU-pru-side-ucfsm_gen1.exe" > /sys/class/remoteproc/remoteproc1/firmware
+echo "PRU-pru-side-ucfsm_gen1.exe" > /sys/class/remoteproc/remoteproc3/firmware
 
 RUN THE EXPERIMENT
 ==================
@@ -91,6 +112,7 @@ Generate a large file of text.
 
 In Paper-LLFSM-PRU/PRU-arm-side-ucfsm
 
+(this will need the .h files from Fisher-libs)
 do a 
 make generate_input
 This should produce a program in ./build/
