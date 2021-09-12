@@ -1,7 +1,7 @@
 //
 //State_CHANNEL_CREATED.h
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 #ifndef __clfsm__pru1_receiver_from_pru0_back_to_arm_State_CHANNEL_CREATED_h__
 #define __clfsm__pru1_receiver_from_pru0_back_to_arm_State_CHANNEL_CREATED_h__

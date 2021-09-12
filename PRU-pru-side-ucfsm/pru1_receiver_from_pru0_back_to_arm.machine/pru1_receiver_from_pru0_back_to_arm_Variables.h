@@ -1,7 +1,7 @@
 //
 //pru1_receiver_from_pru0_back_to_arm_Variables.h
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 uint8_t*	payload;	///<
 pru_rpmsg_transport	transport;	///<

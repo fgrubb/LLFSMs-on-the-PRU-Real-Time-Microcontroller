@@ -1,7 +1,7 @@
 //
 //State_SEND_TO_ARM_VarRefs.mm
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 SEND_TO_ARM *_s = static_cast<SEND_TO_ARM *>(_state);
 

@@ -1,9 +1,9 @@
 //
-//State_CHECK_IRQ_FROM_PRU0_VarRefs.mm
+//State_RECEIVED_FROM_PRU1_VarRefs.mm
 //
 //Automatically created through MiEditCLFSM -- do not change manually!
 //
-CHECK_IRQ_FROM_PRU0 *_s = static_cast<CHECK_IRQ_FROM_PRU0 *>(_state);
+RECEIVED_FROM_PRU1 *_s = static_cast<RECEIVED_FROM_PRU1 *>(_state);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"

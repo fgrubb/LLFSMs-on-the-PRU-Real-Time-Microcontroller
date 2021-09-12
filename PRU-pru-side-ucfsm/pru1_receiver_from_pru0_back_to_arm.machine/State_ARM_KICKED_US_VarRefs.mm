@@ -1,9 +1,9 @@
 //
-//State_CHECK_IRQ_FROM_PRU0_VarRefs.mm
+//State_ARM_KICKED_US_VarRefs.mm
 //
 //Automatically created through MiEditCLFSM -- do not change manually!
 //
-CHECK_IRQ_FROM_PRU0 *_s = static_cast<CHECK_IRQ_FROM_PRU0 *>(_state);
+ARM_KICKED_US *_s = static_cast<ARM_KICKED_US *>(_state);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"

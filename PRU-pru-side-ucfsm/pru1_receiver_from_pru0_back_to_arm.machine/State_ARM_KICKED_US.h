@@ -1,10 +1,10 @@
 //
-//State_INITIAL.h
+//State_ARM_KICKED_US.h
 //
 //Automatically created through MiEditCLFSM -- do not change manually!
 //
-#ifndef __clfsm__pru1_receiver_from_pru0_back_to_arm_State_INITIAL_h__
-#define __clfsm__pru1_receiver_from_pru0_back_to_arm_State_INITIAL_h__
+#ifndef __clfsm__pru1_receiver_from_pru0_back_to_arm_State_ARM_KICKED_US_h__
+#define __clfsm__pru1_receiver_from_pru0_back_to_arm_State_ARM_KICKED_US_h__
 
 #include "CLState.h"
 #include "CLAction.h"
@@ -18,7 +18,7 @@ namespace FSM
 		{
 			namespace State
 			{
-				class INITIAL: public CLState
+				class ARM_KICKED_US: public CLState
 				{
 					class OnEntry: public CLAction
 					{
@@ -35,7 +35,7 @@ namespace FSM
 					class Transition_0: public CLTransition
 					{
 						public:
-						Transition_0(int toState = 1): CLTransition(toState) {}
+						Transition_0(int toState = 2): CLTransition(toState) {}
 
 						virtual bool check(CLMachine *, CLState *) const;
 					};
@@ -45,17 +45,17 @@ namespace FSM
 #pragma clang diagnostic ignored "-Wzero-length-array"
 				CLTransition *_transitions[1];
 				public:
-					INITIAL(const char *name = "INITIAL");
-					virtual ~INITIAL();
+					ARM_KICKED_US(const char *name = "ARM_KICKED_US");
+					virtual ~ARM_KICKED_US();
 
 					virtual CLTransition * const *transitions() const { return _transitions; }
 					virtual int numberOfTransitions() const { return 1; }
 
-#					include "State_INITIAL_Variables.h"
+#					include "State_ARM_KICKED_US_Variables.h"
 #pragma clang diagnostic pop
 				};
 			}
 		}
 	}
 }
-#endif // defined(__gufsm__pru1_receiver_from_pru0_back_to_arm_State_INITIAL__)
+#endif // defined(__gufsm__pru1_receiver_from_pru0_back_to_arm_State_ARM_KICKED_US__)

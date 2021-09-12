@@ -1,0 +1,2 @@
+(__R31 & PRU1_HOST1) & (CT_INTC.SECR0_bit.ENA_STATUS_31_0 & (1 << IRQ_ARM_TO_PRU1))   
+

@@ -1,7 +1,7 @@
 //
 //State_CHANNEL_CREATED.mm
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 #include "pru1_receiver_from_pru0_back_to_arm_Includes.h"
 #include "pru1_receiver_from_pru0_back_to_arm.h"

@@ -1,5 +1,5 @@
 //
-//State_RECEIVED_FROM_PRU0_Variables.h
+//State_ARM_KICKED_US_Variables.h
 //
 //Automatically created through MiEditCLFSM -- do not change manually!
 //
