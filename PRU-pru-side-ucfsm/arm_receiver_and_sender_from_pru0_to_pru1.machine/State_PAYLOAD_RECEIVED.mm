@@ -1,7 +1,7 @@
 //
 //State_PAYLOAD_RECEIVED.mm
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 #include "arm_receiver_and_sender_from_pru0_to_pru1_Includes.h"
 #include "arm_receiver_and_sender_from_pru0_to_pru1.h"

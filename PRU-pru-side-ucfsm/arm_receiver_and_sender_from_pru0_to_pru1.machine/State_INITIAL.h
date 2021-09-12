@@ -1,7 +1,7 @@
 //
 //State_INITIAL.h
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 #ifndef __clfsm__arm_receiver_and_sender_from_pru0_to_pru1_State_INITIAL_h__
 #define __clfsm__arm_receiver_and_sender_from_pru0_to_pru1_State_INITIAL_h__

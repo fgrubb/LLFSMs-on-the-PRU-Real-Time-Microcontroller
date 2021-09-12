@@ -1,7 +1,7 @@
 //
 //arm_receiver_and_sender_from_pru0_to_pru1_VarRefs.mm
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 arm_receiver_and_sender_from_pru0_to_pru1 *_m = static_cast<arm_receiver_and_sender_from_pru0_to_pru1 *>(_machine);
 

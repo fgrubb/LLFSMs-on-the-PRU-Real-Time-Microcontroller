@@ -1,7 +1,7 @@
 //
 //State_SEND_TO_OTHER_PRU.h
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 #ifndef __clfsm__arm_receiver_and_sender_from_pru0_to_pru1_State_SEND_TO_OTHER_PRU_h__
 #define __clfsm__arm_receiver_and_sender_from_pru0_to_pru1_State_SEND_TO_OTHER_PRU_h__
@@ -35,7 +35,7 @@ namespace FSM
 					class Transition_0: public CLTransition
 					{
 						public:
-						Transition_0(int toState = 3): CLTransition(toState) {}
+						Transition_0(int toState = 4): CLTransition(toState) {}
 
 						virtual bool check(CLMachine *, CLState *) const;
 					};

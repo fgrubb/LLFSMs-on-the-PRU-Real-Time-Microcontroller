@@ -1,6 +1,3 @@
-
-
-
 extern "C" {
 #include <stdint.h>
 #include <pru_cfg.h>
@@ -48,9 +45,6 @@ extern "C" {
  * Found at linux-x.y.z/include/uapi/linux/virtio_config.h
  */
 #define VIRTIO_CONFIG_S_DRIVER_OK	4
-
-
-
 
 
 

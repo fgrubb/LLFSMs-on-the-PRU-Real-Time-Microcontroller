@@ -1,7 +1,7 @@
 //
 //arm_receiver_and_sender_from_pru0_to_pru1.h
 //
-//Automatically created through MiEditLLFSM -- do not change manually!
+//Automatically created through MiEditCLFSM -- do not change manually!
 //
 #ifndef __clfsm__arm_receiver_and_sender_from_pru0_to_pru1__
 #define __clfsm__arm_receiver_and_sender_from_pru0_to_pru1__
