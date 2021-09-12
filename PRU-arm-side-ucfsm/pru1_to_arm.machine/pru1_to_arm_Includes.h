@@ -19,6 +19,5 @@ using namespace std;
 extern int errno;
 
 const char NEWLINE = '\n';
-const int SIZE = 24;
-
+const int SIZE = 100;
 
