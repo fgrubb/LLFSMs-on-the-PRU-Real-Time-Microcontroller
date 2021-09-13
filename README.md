@@ -19,6 +19,8 @@ The interrupts are configured automatically by the Linux Kernel Module (from TI,
 ### Notes:
 Everything should work now as Makefiles etc have been changed for all to be self contained in this repository.  You will need to copy the ARM side machine folder and local with includes & ARM ucFSM libs onto your BeagleBone to compile with the ARM under Linux.  PRU files can be done on either your laptop, or the BeagleBone.
 
+Will add complete instructions with video later on.
+
 ## Contents of this Repository
 State machines using the LLFSM structure, which are run on the ucFSM scheduler for "Bare Metal" applications on micro-controllers.
 
