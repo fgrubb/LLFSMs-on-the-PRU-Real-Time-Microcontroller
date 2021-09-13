@@ -10,8 +10,8 @@ extern "C" {
 #include <pru_rpmsg_cpp.h>
 //#include <PRU-ucfsm-LCD-lib.h>
 #include <PRU-ucfsm-general-defines.h>
-#include "PRU-LEDS.h"
-#include "pru_comms.h"
+#include "PRU-LEDS-lib.h"
+#include "pru_comms-lib.h"
 //#include <PRU-ucfsm-PRU_XFR_Comms-lib.h>
 #include <string.h>
 }
