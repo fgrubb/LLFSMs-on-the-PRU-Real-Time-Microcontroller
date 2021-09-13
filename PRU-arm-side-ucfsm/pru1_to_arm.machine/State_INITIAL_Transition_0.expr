@@ -1,2 +1,0 @@
-output_file->is_open() &&(0<=filedesc)
-

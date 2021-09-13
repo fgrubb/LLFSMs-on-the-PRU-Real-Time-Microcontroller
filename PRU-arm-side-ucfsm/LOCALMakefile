@@ -35,20 +35,20 @@ MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_DIR := $(notdir $(patsubst %/,%,$(dir $(MKFILE_PATH))))
 PROJ_NAME=$(CURRENT_DIR)
 CURRENT_PATH=$(shell pwd)
-UCFSM_DIR=../../PRU_ucfsm
+UCFSM_DIR=../local/libs/ucFSM-ARM
 LIBS=
 INCLUDE_MACHINE_DIR=$(GEN_DIR)/./$(MACHINE_NAME).machine
-INCLUDE_UCFSM_DIR=$(GEN_DIR)/ucfsm
+INCLUDE_UCFSM_DIR=../local/includes
 #Common compiler and linker flags (Defined in 'PRU Optimizing C/C++ Compiler User's Guide)
 CFLAGS=
 #Linker flags (Defined in 'PRU Optimizing C/C++ Compiler User's Guide)
 LFLAGS=--reread_libs --warn_sections 
 
 TARGET=$(GEN_DIR)/$(PROJ_NAME)_$(GEN_DIR).exe
-UCFSM_SOURCES=$(wildcard $(UCFSM_DIR)/*.cc)
+#UCFSM_SOURCES=$(wildcard $(UCFSM_DIR)/*.cc)
 UCFSM_SOURCES_COPIED=$(patsubst $(UCFSM_DIR)/%,%,$(UCFSM_SOURCES))
-UCFSM_INCLUDES=$(wildcard *.h)
-UCFSM_OBJECTS=$(patsubst %,$(GEN_DIR)/ucfsm/%,$(UCFSM_SOURCES_COPIED:.cc=.object))
+#UCFSM_INCLUDES=$(wildcard *.h)
+UCFSM_OBJECTS=$(wildcard $(UCFSM_DIR)/*.object)
 MACHINE_SOURCES= $(filter-out %_Internal.mm, $(filter-out %_OnExit.mm, $(filter-out %_OnEntry.mm, $(filter-out %_OnResume.mm, $(filter-out %_OnSuspend.mm, $(filter-out  %VarRefs.mm,  $(wildcard ./$(MACHINE_NAME).machine/*.mm) ) ) ) ) ) )
 MACHINE_CONFIG_SOURCES=$(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
 MACHINE_CC_SOURCES=$(patsubst %,$(GEN_DIR)/%,$(MACHINE_SOURCES:.mm=.cc))
@@ -64,8 +64,8 @@ test:
 	@echo CURRENT_DIR = $(CURRENT_DIR)
 	@echo PROJ_NAME = $(PROJ_NAME)
 	@echo CURRENT_PATH = $(CURRENT_PATH)
-	@echo UCFSM_SOURCES = $(UCFSM_SOURCES)
-	@echo UCFSM_SOURCES_COPIED = $(UCFSM_SOURCES_COPIED)
+#	@echo UCFSM_SOURCES = $(UCFSM_SOURCES)
+#	@echo UCFSM_SOURCES_COPIED = $(UCFSM_SOURCES_COPIED)
 	@echo UCFSM_OBJECTS = $(UCFSM_OBJECTS)
 	@echo MACHINE_CONFIG_SOURCES = $(MACHINE_CONFIG_SOURCES)
 
@@ -79,7 +79,7 @@ printStart:
 	@echo '************************************************************'
 	@echo '***************** Building LOCAL project: $(PROJ_NAME)'
 	@echo '************************************************************'
-	@echo '***************** ucfsm files that need compilation: $(UCFSM_SOURCES)'
+#	@echo '***************** ucfsm files that need compilation: $(UCFSM_SOURCES)'
 	@echo '************************************************************'
 	@echo '***************** machine files that need compilation: $(MACHINE_SOURCES)'
 	@echo '************************************************************'
@@ -103,7 +103,7 @@ printEnd:
 	@echo ''
 
 # Invokes the linker 
-$(TARGET): copyUcfsm $(UCFSM_OBJECTS) copyMachine $(MACHINE_OBJECTS)  $(MACHINE_CONFIG_OBJECTS)
+$(TARGET):  $(UCFSM_OBJECTS) copyMachine $(MACHINE_OBJECTS)  $(MACHINE_CONFIG_OBJECTS) #copyUcfsm
 	@echo ''
 	@echo 'Building target: $@'
 	@echo 'Invoking: Linker on Host'
@@ -169,6 +169,7 @@ $(MACHINE_CONFIG_SOURCES): $(MACHINE_NAME).machine
 
 # Create the build folder for a copy of ucfsm 
 # IGNORE any error in copying
+# Not used due to added compiled libs, not source for GitHub
 copyUcfsm :  $(UCFSM_OBJECTS_LOCAL)
 	@echo ''
 	@mkdir -p $(GEN_DIR)/ucfsm
