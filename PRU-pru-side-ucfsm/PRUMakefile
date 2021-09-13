@@ -16,7 +16,7 @@ define ERROR_BODY
 PRU_CGT environment variable is not set. Examples given:
 (Desktop Linux)
 
-export PRU_CGT=/home/fisher/ti/ccs1010/ccs/tools/compiler/ti-cgt-pru_2.3.3
+export PRU_CGT=~/ti/ccs1010/ccs/tools/compiler/ti-cgt-pru_2.3.3
 
 export PRU_CGT=~/Griffith/MPhil/Beaglebone_Boards/Software_Tools/ti_cgt_pru_2.3.3
 
@@ -37,6 +37,8 @@ endef
 $(error $(ERROR_BODY))
 endif
 
+PRU_LOCAL_HOME=../local
+
 ifndef PRU_LOCAL_HOME
 define LOCAL_ERROR_BODY
 
@@ -44,7 +46,7 @@ define LOCAL_ERROR_BODY
 You must define PRU_LOCAL_HOME so that the local libraries (installed with make install)
 can be founds and their headers for compiled libraries are in a well known place. 
 Typically  ../local
-For instance: export PRU_LOCAL_HOME=../../local
+For instance: export PRU_LOCAL_HOME=../local
 *******************************************************************************
 endef
 $(error $(LOCAL_ERROR_BODY))
@@ -56,9 +58,9 @@ define MACHINE_ERROR_BODY
 *********************************************************************
 Please define MACHINE_NAME
 For instance:
-	make -f PRUMakefile MACHINE_NAME=arm_receiver_and_sender_from_pru0_to_pru1 [USING_RPMSG=defined] [PRU=0/1]
+	make -f PRUMakefile MACHINE_NAME=arm_receiver_and_sender_from_pru0_to_pru1 [USING_RPMSG=defined if not using wrapper] [PRU=0/1]
 or
-	make -f PRUMakefile MACHINE_NAME=pru1_receiver_from_pru0_back_to_arm [USING_RPMSG=defined] [PRU=0/1]
+	make -f PRUMakefile MACHINE_NAME=pru1_receiver_from_pru0_back_to_arm [USING_RPMSG=defined if not using wrapper] [PRU=0/1]
 	
 	Don't define USING_RPMSG variable if using wrapper.
 	Don't define PRU variable if doing for PRU0
@@ -70,22 +72,27 @@ endef
 $(error $(MACHINE_ERROR_BODY))
 endif
 
-ifeq ($(MACHINE_NAME),arm_receiver_and_sender_from_pru0_to_pru1)
-	GEN_DIR=gen0
-else
-	GEN_DIR=gen1
-endif
+#ifeq ($(MACHINE_NAME),arm_receiver_and_sender_from_pru0_to_pru1)
+#	GEN_DIR=gen0
+#else
+#	GEN_DIR=gen1
+#endif
+
+
+
+
 
 MKFILE_PATH = $(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_DIR = $(notdir $(patsubst %/,%,$(dir $(MKFILE_PATH))))
 PROJ_NAME=$(CURRENT_DIR)
 CURRENT_PATH=$(shell pwd)
-UCFSM_DIR=../../PRU_ucfsm
+UCFSM_DIR=$(PRU_LOCAL_HOME)/libs/ucFSM-PRU
 LINKER_COMMAND_FILE=$(PRU_LOCAL_HOME)/include_TI_regs/AM57xx_PRU.cmd
-LIBS= --library=$(PRU_LOCAL_HOME)/libs/PRU-ucfsm-timer-lib.object --library=$(PRU_LOCAL_HOME)/libs/PRU-LEDS.object --library=$(PRU_LOCAL_HOME)/lib/rpmsg_lib.lib --library=$(PRU_LOCAL_HOME)/libs/pru_comms.object
+LIBS= --library=$(PRU_LOCAL_HOME)/libs/PRU-ucfsm-timer-lib.object --library=$(PRU_LOCAL_HOME)/libs/PRU-LEDS.object --library=$(PRU_LOCAL_HOME)/libs/rpmsg/rpmsg_lib.lib --library=$(PRU_LOCAL_HOME)/libs/pru_comms.object
 
+GEN_DIR=gen0
 INCLUDE_MACHINE_DIR=--include_path=$(GEN_DIR)/./$(MACHINE_NAME).machine --include_path=.
-INCLUDE_UCFSM_DIR=--include_path=$(GEN_DIR)/ucfsm --include_path=$(GEN_DIR)
+#INCLUDE_UCFSM_DIR=--include_path=$(GEN_DIR)/ucfsm --include_path=$(GEN_DIR)
 INCLUDE=--include_path=$(PRU_CGT)/include --include_path=$(PRU_LOCAL_HOME)/include_TI_regs  --include_path=$(PRU_LOCAL_HOME)/include_TI_regs/am572x_2_0  --include_path=$(PRU_LOCAL_HOME)/includes/
 STACK_SIZE=0x100
 HEAP_SIZE=0x200
@@ -98,10 +105,11 @@ LFLAGS=--reread_libs --warn_sections --stack_size=$(STACK_SIZE) --heap_size=$(HE
 
 TARGET=$(GEN_DIR)/$(PROJ_NAME)_$(GEN_DIR).exe
 MAP=$(GEN_DIR)/$(PROJ_NAME).map
-UCFSM_SOURCES=$(wildcard $(UCFSM_DIR)/*.cc)
-UCFSM_SOURCES_COPIED=$(patsubst $(UCFSM_DIR)/%,%,$(UCFSM_SOURCES))
-UCFSM_INCLUDES=$(wildcard *.h)
-UCFSM_OBJECTS=$(patsubst %,$(GEN_DIR)/ucfsm/%,$(UCFSM_SOURCES_COPIED:.cc=.object))
+#UCFSM_SOURCES=$(wildcard $(UCFSM_DIR)/*.cc)
+#UCFSM_SOURCES_COPIED=$(patsubst $(UCFSM_DIR)/%,%,$(UCFSM_SOURCES))
+#UCFSM_INCLUDES=$(wildcard *.h)
+#UCFSM_OBJECTS=$(patsubst %,$(GEN_DIR)/ucfsm/%,$(UCFSM_SOURCES_COPIED:.cc=.object))
+UCFSM_OBJECTS=$(wildcard $(UCFSM_DIR)/*.object)
 MACHINE_SOURCES= $(filter-out %_Internal.mm, $(filter-out %_OnExit.mm, $(filter-out %_OnEntry.mm, $(filter-out %_OnResume.mm, $(filter-out %_OnSuspend.mm, $(filter-out  %VarRefs.mm,  $(wildcard ./$(MACHINE_NAME).machine/*.mm) ) ) ) ) ) )
 MACHINE_CONFIG_SOURCES=$(GEN_DIR)/./$(MACHINE_NAME).machine/ucfsm_config.cc
 MACHINE_CC_SOURCES=$(patsubst %,$(GEN_DIR)/%,$(MACHINE_SOURCES:.mm=.cc))
@@ -117,8 +125,9 @@ RESOURCE_TABLE_SOURCES=$(GEN_DIR)/Resource_Table_Wrapper.cpp
 RESOURCE_TABLE_OBJECTS=$(patsubst %,%,$(RESOURCE_TABLE_SOURCES:.cpp=.object))
 endif
 
-ifdef PRU
+ifeq ($(PRU), 1)
 CFLAGS+=-DPRU1
+GEN_DIR=gen1
 endif
 
 all: build_dir printStart $(TARGET) printEnd
@@ -128,8 +137,8 @@ test:
 	@echo CURRENT_DIR = $(CURRENT_DIR)
 	@echo PROJ_NAME = $(PROJ_NAME)
 	@echo CURRENT_PATH = $(CURRENT_PATH)
-	@echo UCFSM_SOURCES = $(UCFSM_SOURCES)
-	@echo UCFSM_SOURCES_COPIED = $(UCFSM_SOURCES_COPIED)
+#	@echo UCFSM_SOURCES = $(UCFSM_SOURCES)
+#	@echo UCFSM_SOURCES_COPIED = $(UCFSM_SOURCES_COPIED)
 	@echo UCFSM_OBJECTS = $(UCFSM_OBJECTS)
 	@echo MACHINE_CONFIG_SOURCES = $(MACHINE_CONFIG_SOURCES)
 	@echo RESOURCE_TABLE_SOURCES = $(RESOURCE_TABLE_SOURCES)
@@ -144,7 +153,7 @@ printStart:
 	@echo '************************************************************'
 	@echo '***************** Building LOCAL project: $(PROJ_NAME)'
 	@echo '************************************************************'
-	@echo '***************** ucfsm files that need compilation: $(UCFSM_SOURCES)'
+#	@echo '***************** ucfsm files that need compilation: $(UCFSM_SOURCES)'
 	@echo '************************************************************'
 	@echo '***************** machine files that need compilation: $(MACHINE_SOURCES)'
 	@echo '************************************************************'
@@ -169,7 +178,7 @@ printEnd:
 
 
 # Invokes the linker
-$(TARGET): $(RESOURCE_TABLE_INCLUDES)  $(LINKER_COMMAND_FILE) $(RESOURCE_TABLE_OBJECTS)   copyUcfsm $(UCFSM_OBJECTS) copyMachine $(MACHINE_CONFIG_OBJECTS)  $(MACHINE_OBJECTS) 
+$(TARGET): $(RESOURCE_TABLE_INCLUDES)  $(LINKER_COMMAND_FILE) $(RESOURCE_TABLE_OBJECTS)    $(UCFSM_OBJECTS) copyMachine $(MACHINE_CONFIG_OBJECTS)  $(MACHINE_OBJECTS) #copyUcfsm
 	@echo ''
 	@echo 'Building target: $@'
 	@echo 'Invoking: PRU Linker'
@@ -185,7 +194,7 @@ copyMachine :  $(MACHINE_SOURCES)
 	@echo '#*#*#* Coping machine Files  files '
 	-cp ./$(MACHINE_NAME).machine/*.h $(GEN_DIR)/./$(MACHINE_NAME).machine
 	-cp ./$(MACHINE_NAME).machine/*VarRefs.mm $(GEN_DIR)/./$(MACHINE_NAME).machine
-	-cp ./$(MACHINE_NAME).machine/*FuncRefs.mm $(GEN_DIR)/./$(MACHINE_NAME).machine | true
+#	-cp ./$(MACHINE_NAME).machine/*FuncRefs.mm $(GEN_DIR)/./$(MACHINE_NAME).machine | true
 	-cp ./$(MACHINE_NAME).machine/*_OnExit.mm $(GEN_DIR)/./$(MACHINE_NAME).machine
 	-cp ./$(MACHINE_NAME).machine/*_Internal.mm $(GEN_DIR)/./$(MACHINE_NAME).machine
 	-cp ./$(MACHINE_NAME).machine/*.expr $(GEN_DIR)/./$(MACHINE_NAME).machine  | true
@@ -212,7 +221,7 @@ $(MACHINE_CONFIG_OBJECTS):  $(MACHINE_CONFIG_SOURCES)
 	@echo ''
 	@echo '#*#*#* Building Machine Config object file: $<'
 	@echo '#*#*#* Invoking: Host compiler on arrangement config files'
-	$(PRU_CGT)/bin/clpru $(INCLUDE) $(INCLUDE_MACHINE_DIR) $(INCLUDE_UCFSM_DIR) $(CFLAGS) -fe $@ $<
+	$(PRU_CGT)/bin/clpru $(INCLUDE) $(INCLUDE_MACHINE_DIR)  $(CFLAGS) -fe $@ $< #$(INCLUDE_UCFSM_DIR)
 
 $(RESOURCE_TABLE_OBJECTS):  $(RESOURCE_TABLE_SOURCES)
 	@echo ''
@@ -220,11 +229,11 @@ $(RESOURCE_TABLE_OBJECTS):  $(RESOURCE_TABLE_SOURCES)
 	@echo '#*#*#* Invoking: Host compiler on arrangement config files'
 	$(PRU_CGT)/bin/clpru $(INCLUDE)  $(CFLAGS) -fe $@ $<
 
-$(RESOURCE_TABLE_SOURCES): ./CPP-Test/Resource_Table_Wrapper.cpp ./CPP-Test/Resource_Table_Wrapper.h 
+$(RESOURCE_TABLE_SOURCES): ./Resource_Table_Wrapper.cpp ./Resource_Table_Wrapper.h 
 	@mkdir -p $(GEN_DIR)
 	@echo '#*#*#* Building wrapper for resorce table to deliver for: $<'
-	-cp ./CPP-Test/Resource_Table_Wrapper.cpp $(GEN_DIR)/
-	-cp ./CPP-Test/Resource_Table_Wrapper.h $(GEN_DIR)/
+	-cp ./Resource_Table_Wrapper.cpp $(GEN_DIR)/
+	-cp ./Resource_Table_Wrapper.h $(GEN_DIR)/
 
 $(RESOURCE_TABLE_INCLUDES): resource_table_RPMSG_defs_0.h resource_table_RPMSG_data_0.h 
 	@mkdir -p $(GEN_DIR)

@@ -5,8 +5,8 @@ extern "C" {
 #include <rsc_types.h>
 #include <pru_rpmsg_cpp.h>
 #include <PRU-ucfsm-general-defines.h>
-#include "PRU-LEDS.h"
-#include "pru_comms.h"
+#include "PRU-LEDS-lib.h"
+#include "pru_comms-lib.h"
 }
 #include <string.h>
 #include "Resource_Table_Wrapper.h"
