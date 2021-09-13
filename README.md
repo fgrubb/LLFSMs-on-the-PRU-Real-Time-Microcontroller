@@ -17,7 +17,7 @@ The main difference is likely the IEP timer configuration, and reading the timer
 The interrupts are configured automatically by the Linux Kernel Module (from TI, as part of the standard BB install from beagleboard.org), the PRU firmware resource_table header has the data structure arrays which the Kernel Module interprates, and configures.  One can do this manually, but leaving it to the LKM is done for it to also set up the needed Vring buffers and options to receive interrupts on the Linux side.  It also helps when using dmesg to look at logs when the firmware starts.
 
 ### Notes:
-Soon enough, the Makefiles will be reconfigured for the whole thing to build here, as it is being migrated from a separate folder structure etc.
+Everything should work now as Makefiles etc have been changed for all to be self contained in this repository.  You will need to copy the ARM side machine folder and local with includes & ARM ucFSM libs onto your BeagleBone to compile with the ARM under Linux.  PRU files can be done on either your laptop, or the BeagleBone.
 
 ## Contents of this Repository
 State machines using the LLFSM structure, which are run on the ucFSM scheduler for "Bare Metal" applications on micro-controllers.
