@@ -88,7 +88,7 @@ PROJ_NAME=$(CURRENT_DIR)
 CURRENT_PATH=$(shell pwd)
 UCFSM_DIR=$(PRU_LOCAL_HOME)/libs/ucFSM-PRU
 LINKER_COMMAND_FILE=$(PRU_LOCAL_HOME)/include_TI_regs/AM57xx_PRU.cmd
-LIBS= --library=$(PRU_LOCAL_HOME)/libs/PRU-ucfsm-timer-lib.object --library=$(PRU_LOCAL_HOME)/libs/PRU-LEDS.object --library=$(PRU_LOCAL_HOME)/libs/rpmsg/rpmsg_lib.lib --library=$(PRU_LOCAL_HOME)/libs/pru_comms.object
+LIBS= --library=$(PRU_LOCAL_HOME)/libs/PRU-ucfsm-timer-lib.object --library=$(PRU_LOCAL_HOME)/libs/PRU-LEDS-lib.object --library=$(PRU_LOCAL_HOME)/libs/rpmsg/rpmsg_lib.lib --library=$(PRU_LOCAL_HOME)/libs/pru_comms-lib.object
 
 GEN_DIR=gen0
 INCLUDE_MACHINE_DIR=--include_path=$(GEN_DIR)/./$(MACHINE_NAME).machine --include_path=.
