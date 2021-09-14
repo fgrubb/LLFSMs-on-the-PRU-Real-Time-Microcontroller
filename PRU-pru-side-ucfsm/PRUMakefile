@@ -18,13 +18,10 @@ PRU_CGT environment variable is not set. Examples given:
 
 export PRU_CGT=~/ti/ccs1010/ccs/tools/compiler/ti-cgt-pru_2.3.3
 
-export PRU_CGT=~/Griffith/MPhil/Beaglebone_Boards/Software_Tools/ti_cgt_pru_2.3.3
-
-Vlad:
-export PRU_CGT=/home/Vlad/ti-cgt-pru_2.3.3
 
 /path/to/pru/code/gen/tools/ti-cgt-pru_2.1.2
-(Windows) set PRU_CGT=C:/path/to/pru/code/gen/tools/ti-cgt-pru_2.1.2
+(Windows):
+set PRU_CGT=C:/path/to/pru/code/gen/tools/ti-cgt-pru_2.1.2
 
 (ARM Linux*) export PRU_CGT=/usr/share/ti/cgt-pru
 
