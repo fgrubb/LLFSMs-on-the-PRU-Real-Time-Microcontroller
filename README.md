@@ -13,9 +13,26 @@ The examples here run on the PRU, in the AI, this is 4 cores (only 2 used in thi
 This code could be easily ported to the Black if one goes through the register names in the code and matches them up with the AM335x headers.
 The main difference is likely the IEP timer configuration, and reading the timer.  The AI uses 2 x 32 bit registers, making it a 64 bit timer, the Black has a single 32 bit timer register.
 The interrupts are configured automatically by the Linux Kernel Module (from TI, as part of the standard BB install from beagleboard.org), the PRU firmware resource_table header has the data structure arrays which the Kernel Module interprates, and configures.  One can do this manually, but leaving it to the LKM is done for it to also set up the needed Vring buffers and options to receive interrupts on the Linux side.  It also helps when using dmesg to look at logs when the firmware starts.
+## Basic Instructions to get started
+1. Get and install the PRU compiler tools from the resources section at the bottom of this page.
+2. Look in the PRU-arm-side-ucfsm dir for the device tree files .dtb and .dts.  Backup the file your board boots from (likely in the uboot/dtb/ folder), copy this one over it so you don't have to change any names and configs.  I struggled to get uboot to use a different file name.
+3. Make a folder where you want to test this project, then clone into it by copying and pasting the link from the green code button.
+4. Change to the "local/libs-to-build" dir, run make, then "make install".  This will copy compiled libraries & headers.
+5. Change to the PRU-pru-side-ucfsm folder, run "make -f PRUMakefile" and it will give you an error message with paths to add, such as where the PRU compiler is.
+6. Compile both machines, for both PRU 0 & 1 using the 2 different machine name folders, without adding the ".machine" at the end.
+7. Copy the "local" and "PRU-arm-side-ucfsm" dirs to your BeagleBone-AI, also the 2 binary compiled files from PRU-pru-side-ucfsm/gen0 & gen1 folders
+8. Build the ARM/Linux side machines by running "make -f LOCALMakefile" and then seeing the error message to compile the 2 machines.
+9. Copy the PRU binaries from gen0 and gen1 to /lib/firmware of the BeagleBone
+10. Run the script "PRU_dev_script.sh" to enable debugging print statements, and set up the machine names to be loaded into the PRUs
+11. Copy, paste and run the start commands for both PRUs.
+12. Run the script in the ARM-side folder "ARM_run_send_receive_PRUs.sh".
+13. Watch the PRU Cape LEDs flash and messages printed to the console as the text is sent across.  The LEDs will stop flashing when transferred.
+14. Run "diff input.txt received.txt" and see if it shows a difference between the 2 files. If nothing printed, then was successful, also manually inspect both files.
 
 ### Notes:
 Everything should work now as Makefiles etc have been changed for all to be self contained in this repository.  You will need to copy the ARM side machine folder and local with includes & ARM ucFSM libs onto your BeagleBone to compile with the ARM under Linux.  PRU files can be done on either your laptop, or the BeagleBone.
+
+I have not yet
 
 Will add complete instructions with video later on.
 
@@ -69,6 +86,9 @@ TI's git with their PRU examples: https://git.ti.com/cgit/pru-software-support-p
 
 https://www.ti.com/tool/PROCESSOR-SDK-AM57X
 
+PRU compiler tools:
+https://www.ti.com/tool/PRU-CGT
+
 https://www.ti.com/tool/download/PROCESSOR-SDK-LINUX-AM57X#downloads
 
 Linux SDK release notes:
@@ -77,4 +97,5 @@ https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Relea
 Linux SDK documentation & intermediate intro to PRU:
 https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_PRU-ICSS_PRU_ICSSG.html
 
+Contact: fisher.grubb@gmail.com
 &copy; Fisher Grubb & Prof Vladimir Estivill-Castro: the authors of the paper submitted to ISCeng2021, developers of this software.
