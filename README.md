@@ -98,6 +98,9 @@ https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Relea
 Linux SDK documentation & intermediate intro to PRU:
 https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_PRU-ICSS_PRU_ICSSG.html
 
+MiPal downloads, especially for MiEditLLFSM, the Java based LLFSM gui viewer & editor written by Prof Vladimir Estevill-Castro:
+http://mipal.net.au/downloads.php
+
 Contact: fisher.grubb@gmail.com
 
 &copy; Fisher Grubb & Prof Vladimir Estivill-Castro: the authors of the paper submitted to ISCeng2021, developers of this software.
