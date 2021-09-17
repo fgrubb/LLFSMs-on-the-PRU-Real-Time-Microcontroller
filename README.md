@@ -32,7 +32,7 @@ The interrupts are configured automatically by the Linux Kernel Module (from TI,
 ### Notes:
 Everything should work now as Makefiles etc have been changed for all to be self contained in this repository.  You will need to copy the ARM side machine folder and local with includes & ARM ucFSM libs onto your BeagleBone to compile with the ARM under Linux.  PRU files can be done on either your laptop, or the BeagleBone.
 
-I have not yet
+I have not yet gone through the instructions in detail, but what I've put should be enough.
 
 Will add complete instructions with video later on.
 
@@ -98,4 +98,5 @@ Linux SDK documentation & intermediate intro to PRU:
 https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Foundational_Components_PRU-ICSS_PRU_ICSSG.html
 
 Contact: fisher.grubb@gmail.com
+
 &copy; Fisher Grubb & Prof Vladimir Estivill-Castro: the authors of the paper submitted to ISCeng2021, developers of this software.
