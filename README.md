@@ -85,9 +85,13 @@ HEAP_SIZE=0x100
 #### TI tools & links for the SoC in the BeagleBone AI
 TI's git with their PRU examples: https://git.ti.com/cgit/pru-software-support-package/pru-software-support-package/
 
+PRU industrial libraries with some source: https://www.ti.com/tool/PRU-ICSS-INDUSTRIAL-SW
+
+TI Sitara AM5729 page with most documents, especially the Tech Ref Manual & some PRU docs: https://www.ti.com/product/AM5729
+
 https://www.ti.com/tool/PROCESSOR-SDK-AM57X
 
-PRU compiler tools:
+PRU compiler tools & docs:
 https://www.ti.com/tool/PRU-CGT
 
 https://www.ti.com/tool/download/PROCESSOR-SDK-LINUX-AM57X#downloads
