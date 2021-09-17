@@ -60,6 +60,7 @@ At times, the compiler flag PRU_UCFSM (under a #define) is used to add PRU speci
 
 ### Random Usage Tips
 #### Debugging
+These are in the PRU_dev_script.sh.  
 Run these commands before loading PRU firmware to allow dmesg to print more helpful info, such as Kernel Modules configuring interrupts & RPMsg passing Vrings:
 
 DYNAMIC_DEBUG needs to be enabled in the Kernel before below works:
