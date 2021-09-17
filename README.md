@@ -89,8 +89,6 @@ PRU industrial libraries with some source: https://www.ti.com/tool/PRU-ICSS-INDU
 
 TI Sitara AM5729 page with most documents, especially the Tech Ref Manual & some PRU docs: https://www.ti.com/product/AM5729
 
-https://www.ti.com/tool/PROCESSOR-SDK-AM57X
-
 PRU compiler tools & docs:
 https://www.ti.com/tool/PRU-CGT
 
