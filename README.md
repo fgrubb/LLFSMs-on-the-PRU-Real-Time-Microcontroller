@@ -103,6 +103,7 @@ https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Found
 #### MiPal
 MiPal downloads, especially for MiEditLLFSM, the Java based LLFSM gui viewer & editor written by Prof Vladimir Estivill-Castro:
 http://mipal.net.au/downloads.php
+Related publications: http://mipal.net.au/publications.php
 
 Contact: fisher.grubb@gmail.com
 
