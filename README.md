@@ -105,8 +105,8 @@ https://software-dl.ti.com/processor-sdk-linux/esd/docs/06_03_00_106/linux/Found
 Mark Yoder's PRU Cookbook examples, (PDF book in docs folder): https://github.com/MarkAYoder/PRUCookbook
 
 #### MiPal
-MiPal downloads, especially for MiEditLLFSM, the Java based LLFSM gui viewer & editor written by Prof Vladimir Estivill-Castro:
-http://mipal.net.au/downloads.php  
+MiEditLLFSM, the Java based LLFSM gui viewer & editor written by Prof Vladimir Estivill-Castro  
+MiPal downloads: http://mipal.net.au/downloads.php  
 Related publications: http://mipal.net.au/publications.php
 
 Contact: fisher.grubb@gmail.com
