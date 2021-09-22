@@ -1,6 +1,10 @@
-========================
-BUILD OUTPUT DESCRIPTION
-========================
+Java based GUI editor and creator for Logic Labelled Finite State Machines.
+
+Read the PDF for an in depth look for usage.  
+There is a basic block based state diagram with code for the currently selected state on the left.  
+One can drag to rearrange the states for how they prefer to understand the FSM they created.
+
+# BUILD OUTPUT DESCRIPTION
 
 When you build an Java application project that has a main class, the IDE
 automatically copies all of the JAR
