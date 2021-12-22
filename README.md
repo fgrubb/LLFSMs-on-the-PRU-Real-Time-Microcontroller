@@ -109,7 +109,7 @@ MiEditLLFSM, the Java based LLFSM gui viewer & editor written by Prof Vladimir E
 MiPal downloads: http://mipal.net.au/downloads.php  
 Related publications: http://mipal.net.au/publications.php
 
-ICSEng2021 Conference 14-16December: https://icseng.pwr.edu.pl/
+ICSEng2021 Conference 14-16December: https://icseng.pwr.edu.pl/  
 Conference paper:  https://link.springer.com/chapter/10.1007%2F978-3-030-92604-5_35
 
 Contact: fisher.grubb@gmail.com
