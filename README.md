@@ -108,6 +108,7 @@ Mark Yoder's PRU Cookbook examples, (PDF book in docs folder): https://github.co
 MiEditLLFSM, the Java based LLFSM gui viewer & editor written by Prof Vladimir Estivill-Castro  
 MiPal downloads: http://mipal.net.au/downloads.php  
 Related publications: http://mipal.net.au/publications.php
+Conference paper:  https://link.springer.com/chapter/10.1007%2F978-3-030-92604-5_35
 
 Contact: fisher.grubb@gmail.com
 
