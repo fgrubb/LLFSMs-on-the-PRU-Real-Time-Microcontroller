@@ -5,10 +5,10 @@ Extra important information not put in the paper will be put here as an addition
 
 If state-machines aren't as important to you, and you're looking for generic code to use PRU features or attachments, of immediate use is:
 
-LCD library for generic character LCDs (made for 4 lines x 20 chars, should work with 2 lines x 16 chars)  
-IEP timer example, essentially a 64 bit timer, there is a function to configure it, including for an interrupt flag, and to read it for use similar to the Arduino micros().  
-Sending registers between PRUs for fast transfer without ARM interaction over the XFR bus, this involves interrupts and preventing timeouts, and dealing with them if they occur.  
-Different tips and tricks in the code, comments to explain what it is doing and why.
+* LCD library for generic character LCDs (made for 4 lines x 20 chars, should work with 2 lines x 16 chars)  
+* IEP timer example, essentially a 64 bit timer, there is a function to configure it, including for an interrupt flag, and to read it for use similar to the Arduino micros().  
+* Sending registers between PRUs for fast transfer without ARM interaction over the XFR bus, this involves interrupts and preventing timeouts, and dealing with them if they occur.  
+* Different tips and tricks in the code, comments to explain what it is doing and why.
 
 The board is a BeagleBone AI (AM5729), this is the multi-core, multi-arch upgrade to the BeagleBone Black (which used the Sitara AM3359).
 The examples here run on the PRU, in the AI, this is 4 cores (only 2 used in this example), the Black has 2 cores, mostly the same, but their register definitions will be slighly different.
@@ -108,6 +108,9 @@ Mark Yoder's PRU Cookbook examples, (PDF book in docs folder): https://github.co
 MiEditLLFSM, the Java based LLFSM gui viewer & editor written by Prof Vladimir Estivill-Castro  
 MiPal downloads: http://mipal.net.au/downloads.php  
 Related publications: http://mipal.net.au/publications.php
+
+ICSEng2021 Conference 14-16 December: https://icseng.pwr.edu.pl/  
+Conference paper:  https://link.springer.com/chapter/10.1007%2F978-3-030-92604-5_35
 
 Contact: fisher.grubb@gmail.com
 
